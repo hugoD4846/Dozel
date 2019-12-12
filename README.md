@@ -9,10 +9,11 @@ Dozel est un jeu dans lequel vous pourrez vous déplacer dynamiquement afin d’
 -   le temple des maths
 -   le temple du français
 -   le temple de l’histoire & géographie.
-        Description:
--réalisé:
-Un déplacement dynamique : possibilité de déplacer le personnage à l’aide des flèches du clavier en temps réel. 
-“moteur graphique” dans le terminal
+
+# Description:
+-   réalisé:
+    -   Un déplacement dynamique : possibilité de déplacer le personnage à l’aide des flèches du clavier en temps réel. 
+    -   “moteur graphique” dans le terminal
 Combat de boss par réponse à des questions liées à la matière du temple
 Dialogue
 Espérance de réalisation :
