@@ -1,4 +1,4 @@
-public class tilesdata extends Program{
+public class Dozel extends Program{
 
     // VARIABLE //
         int playerX = 5;
