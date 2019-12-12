@@ -10,32 +10,22 @@ Dozel est un jeu dans lequel vous pourrez vous déplacer dynamiquement afin d’
 -   le temple du français
 -   le temple de l’histoire & géographie.
 
-# Description:
+### Description:
 -   réalisé:
     -   Un déplacement dynamique : possibilité de déplacer le personnage à l’aide des flèches du clavier en temps réel. 
     -   “moteur graphique” dans le terminal
-Combat de boss par réponse à des questions liées à la matière du temple
-Dialogue
-Espérance de réalisation :
-Ennemis se déplaçant et pouvant être combattu entre les boss
-Shop
-A faire dans l’absolu :
-animation du terrain lors de la phase de déplacement dynamique
-cinématique
-
-- fonctionnalités proposées,
-- intérêt pédagogique pour les élèves
+    -   Question au format CSV
 
 ## Utilisation de Dozel
 
 Afin d'utiliser le projet, il doit être suffisant de taper les 
 commandes suivantes:
-./compile.sh            // lancer la compilation des fichiers
-                        // présents dans 'src' et création des 
-                        // fichiers '.class' dans 'classes'
-./run.sh Dozel
+1.   ./compile.sh            // lancer la compilation des fichiers
+                            // présents dans 'src' et création des 
+                            // fichiers '.class' dans 'classes'
+2.  ./run.sh Dozel
 
-Pour les projets en mode graphiques, placez les images dans le répertoire
-'ressources' sachant que son contenu est copié dans 'classes' lorsque 
-vous faites un 'run'.
+Lorsque le programme tourne :
+-   appuier sur k puis Ctrl+C pour quitter le programme
+-   utiliser les fleche directionnel pour vous deplacer 
 
