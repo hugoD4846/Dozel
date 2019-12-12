@@ -1,6 +1,6 @@
 # <NomProjet>
 
-Dutoit Hugo Saint-Maxens Romain
+Dutoit Hugo Saint-Maxent Romain
 
 ## Présentation de Dozel
 
@@ -20,9 +20,7 @@ Dozel est un jeu dans lequel vous pourrez vous déplacer dynamiquement afin d’
 
 Afin d'utiliser le projet, il doit être suffisant de taper les 
 commandes suivantes:
-1.   ./compile.sh            // lancer la compilation des fichiers
-                            // présents dans 'src' et création des 
-                            // fichiers '.class' dans 'classes'
+1.   ./compile.sh
 2.  ./run.sh Dozel
 
 Lorsque le programme tourne :
