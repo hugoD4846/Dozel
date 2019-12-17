@@ -1,7 +1,6 @@
 public class Dozel extends Program {
 
     // VARIABLE //
-    enemies [] enemies;
     int playerX = 5;
     int playerY = 5;
     boolean running = true;
@@ -43,18 +42,18 @@ public class Dozel extends Program {
     // FONCTION DE COLISION //
     boolean collision(int x, int y) {
         boolean rescoli = true;
-        if (playerY <= 1) {
-            playerY = length(fullset[0]) * (length(tiles[fullset[0][0][0]])) - 1;
+        if (y<= 1) {
+            y = length(fullset[0]) * (length(tiles[fullset[0][0][0]])) - 1;
             mapY--;
-        } else if (playerY >= length(fullset[0]) * (length(tiles[fullset[0][0][0]]))) {
-            playerY = 1;
+        } else if (y >= length(fullset[0]) * (length(tiles[fullset[0][0][0]]))) {
+            y = 1;
             mapY++;
             print(mapY);
-        } else if (playerX <= 1) {
-            playerX = ((fullset[0].length) * ((tiles[fullset[0][0][0]][0].length) - 1)) - 1;
+        } else if (x <= 1) {
+            x = ((fullset[0].length) * ((tiles[fullset[0][0][0]][0].length) - 1)) - 1;
             mapX--;
-        } else if (playerX >= (fullset[0].length) * (tiles[fullset[0][0][0]][0].length) - 1) {
-            playerX = 1;
+        } else if (x >= (fullset[0].length) * (tiles[fullset[0][0][0]][0].length) - 1) {
+            x = 1;
             mapX++;
         } else {
             int Xtiles = x / 8;
@@ -128,7 +127,34 @@ public class Dozel extends Program {
     }
 
     
-    //
+    // ennemies function
+    
+    SkinMat newSkinMat(MATIERE mat,String skin,String color){
+        SkinMat s = new SkinMat();
+        s.mat = mat;
+        s.color = color;
+        s.skin = skin;
+        return s;
+    }
+    SkinMat [] Skins = {
+        newSkinMat(MATIERE.FRANCAIS,"" + (char) 9617,ANSI_GREEN),
+        newSkinMat(MATIERE.MATHEMATIQUE,"" + (char) 9617,ANSI_BLUE),
+        newSkinMat(MATIERE.HISTOIREGEO,"" + (char) 9617,ANSI_PURPLE)
+    };
+    enemie newEnemie(int x,int y,int lifeP,boolean BOSS){
+        enemie e = new enemie();
+        e.Skin = Skins[(int)(random()*length(Skins))+1];
+        e.x = x;
+        e.y = y;
+        e.BOSS = BOSS;
+        e.lifeP = lifeP;
+        return e;
+    }
+    enemie[] enemies = {
+        newEnemie(10,10,10,false)
+    };
+    void Move(enemie e){
+    }
     // TESTS //
 
     // ==========================================//

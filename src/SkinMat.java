@@ -1,4 +1,4 @@
 class SkinMat {
-    String Color,skin;
+    String color,skin;
     MATIERE mat;
 }
