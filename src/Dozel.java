@@ -1,6 +1,7 @@
 public class Dozel extends Program {
 
     // VARIABLE //
+    enemies [] enemies;
     int playerX = 5;
     int playerY = 5;
     boolean running = true;
@@ -11,13 +12,13 @@ public class Dozel extends Program {
     int deplacement = 1;
 
     // COLOR VARIABLE //
-    String defaultc = ANSI_BLACK_BG;
-    String defaultbg = ANSI_BG_DEFAULT_COLOR;
-    String carcolor = ANSI_RED + ANSI_BOLD;
-    String enecolor = ANSI_PURPLE;
-    String gndcolor = ANSI_YELLOW_BG + ANSI_GREEN;
-    String treecolor = ANSI_GREEN + ANSI_BOLD + ANSI_GREEN_BG;
-    String watercolor = ANSI_BLUE_BG + ANSI_CYAN;
+    final String defaultc = ANSI_BLACK_BG;
+    final String defaultbg = ANSI_BG_DEFAULT_COLOR;
+    final String carcolor = ANSI_RED + ANSI_BOLD;
+    final String enecolor = ANSI_PURPLE;
+    final String gndcolor = ANSI_YELLOW_BG + ANSI_GREEN;
+    final String treecolor = ANSI_GREEN + ANSI_BOLD + ANSI_GREEN_BG;
+    final String watercolor = ANSI_BLUE_BG + ANSI_CYAN;
 
     // SKIN VARIABLE //
     String[][] skin = { { "" + (char) 9617, gndcolor },
@@ -126,6 +127,7 @@ public class Dozel extends Program {
         }
     }
 
+    
     //
     // TESTS //
 
