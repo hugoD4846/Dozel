@@ -3,7 +3,7 @@ public class Dozel extends Program {
     // VARIABLE //
     int playerX = 5;
     int playerY = 5;
-    boolean running = true;
+    boolean running = false;
     boolean goodkey = true;
     int currentTile;
     int mapY = 0;
@@ -135,32 +135,47 @@ public class Dozel extends Program {
         s.color = color;
         s.skin = skin;
         return s;
-    }
+    };
     SkinMat [] Skins = {
         newSkinMat(MATIERE.FRANCAIS,"" + (char) 9617,ANSI_GREEN),
         newSkinMat(MATIERE.MATHEMATIQUE,"" + (char) 9617,ANSI_BLUE),
         newSkinMat(MATIERE.HISTOIREGEO,"" + (char) 9617,ANSI_PURPLE)
     };
-    enemie newEnemie(int x,int y,int lifeP,boolean BOSS){
+    enemie newEnemie(int x,int y,int lifeP,boolean BOSS,int idx){
         enemie e = new enemie();
-        e.Skin = Skins[(int)(random()*length(Skins))+1];
+        e.Skin = Skins[(int)(random()*length(Skins))];
         e.x = x;
         e.y = y;
         e.BOSS = BOSS;
         e.lifeP = lifeP;
+        e.idx = idx;
         return e;
     }
     enemie[] enemies = {
-        newEnemie(10,10,10,false)
+        newEnemie(10,10,10,false,0)
     };
     void Move(enemie e){
     }
+    void print(enemie e){
+        print("idx: "+e.idx+"\nx: "+e.x+"\ny: "+e.y+"\nlifeP: "+e.lifeP);
+    }
     // TESTS //
-
+    void testNewEnemie(){
+        int testY = (int)(random()*10);
+        int testX = (int)(random()*10);
+        int testLifeP = (int)(random()*10);
+        boolean testBOSS = false;
+        int testidx = 0;
+        enemie testEnemie = newEnemie(testX,testY,testLifeP,testBOSS,testidx);
+        assertEquals(testX, testEnemie.x);
+        assertEquals(testY, testEnemie.y);
+        assertEquals(testLifeP, testEnemie.lifeP);
+        assertFalse(testEnemie.BOSS);
+    }
     // ==========================================//
 
     // MAIN FUNCTION //
-    void algorithm() {
+    void _algorithm() {
         while (running) {
             printTiles(map[mapY][mapX]);
             getkeyinput();
