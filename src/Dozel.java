@@ -159,6 +159,14 @@ public class Dozel extends Program {
     void print(enemie e){
         print("idx: "+e.idx+"\nx: "+e.x+"\ny: "+e.y+"\nlifeP: "+e.lifeP);
     }
+    
+
+    //book function
+    //tome function
+    //page function
+    void print(Page p){
+        
+    }
     // TESTS //
     void testNewEnemie(){
         int testY = (int)(random()*10);

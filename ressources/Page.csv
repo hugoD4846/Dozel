@@ -1,0 +1,4 @@
+Titre,description,fr,hist,math,vie,dmg,shield,cout,prix
+Tranchant,Améliore le tranchant de ton arme pour un tour,0,1,0,0,1,0,1,0
+Bouclier,Te permet de te proteger contre un certain nombre degat,0,0,1,0,0,1,1,0
+Soin,"Te rend des points de vie ",1,0,0,1,0,0,1,0

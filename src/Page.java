@@ -1,4 +1,7 @@
 class Page{
     String Titre,Description;
-    int[] succes,echec = new int[3];
+    int[] qu = new int[3];
+    int[] bonus = new int[3];
+    int prix;
+    int cout;
 }
