@@ -1,7 +1,7 @@
 public class Dozel extends Program {
 
     // VARIABLE //
-    int playerX = 5;
+    int playerX = 6;
     int playerY = 5;
     boolean running = true;
     boolean goodkey = true;
