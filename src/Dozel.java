@@ -3,7 +3,7 @@ public class Dozel extends Program {
     // VARIABLE //
     int playerX = 5;
     int playerY = 5;
-    boolean running = false;
+    boolean running = true;
     boolean goodkey = true;
     int currentTile;
     int mapY = 0;
@@ -183,7 +183,7 @@ public class Dozel extends Program {
     // ==========================================//
 
     // MAIN FUNCTION //
-    void _algorithm() {
+    void algorithm() {
         while (running) {
             printTiles(map[mapY][mapX]);
             getkeyinput();
