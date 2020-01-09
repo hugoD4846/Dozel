@@ -6,41 +6,29 @@ class LivreTest extends Program{
     final CSVFile[] questionFrancais = {loadCSV("QuCPFrancais.csv")};
     final CSVFile[] questionHistoire = {loadCSV("QuCpHistoire.csv")};
     final CSVFile[] questionMaths = {loadCSV("QuCPMaths.csv")};
-    Player joueur = newPlayer();
+    final CSVFile[] Logos = {loadCSV("Titre.csv")};
+    final CSVFile[] Landscape = {loadCSV("Landscape1.csv")};
+    Player joueur = new Player();
     // main function
+    
+   
     void algorithm(){
-        do{
-        print(joueur.Book);
-        printTitle("quelle tome ?");
-        joueur.Book.currentTome = readInt();
         clearScreen();
-        print(joueur.Book.Tomes[joueur.Book.currentTome]);
-        printTitle("\nBon Tome?");
-        }while(readInt() != 1);
-        delay(200);
-        do{
-            clearScreen();
-            print(joueur.Book.Tomes[joueur.Book.currentTome]);
-            print("\nimprime quel page ?  :");
-            joueur.Book.Tomes[joueur.Book.currentTome].currentPage = readInt();
-            clearScreen();
-            print(joueur.Book.Tomes[joueur.Book.currentTome].Pages[joueur.Book.Tomes[joueur.Book.currentTome].currentPage]);
-            delay(200);
-            print("\nBonne page ? ");
-        }while(readInt() != 1);
-        delay(1000);
-        clearScreen();    
-        printTitle("Pour que ton sort fonction tu devra repondre au question du theme suivant ");
-        println(  ANSI_GREEN+ "\t\t"+ joueur.Book.Tomes[joueur.Book.currentTome].Pages[joueur.Book.Tomes[joueur.Book.currentTome].currentPage].qu[0] +" en Francais" );
-        println(  ANSI_RED+ "\t\t"+ joueur.Book.Tomes[joueur.Book.currentTome].Pages[joueur.Book.Tomes[joueur.Book.currentTome].currentPage].qu[1] + " en Histoire" );
-        println(  ANSI_BLUE+ "\t\t"+ joueur.Book.Tomes[joueur.Book.currentTome].Pages[joueur.Book.Tomes[joueur.Book.currentTome].currentPage].qu[2] + " en Mathematique" );
-        println();
-        reset();
-        if(repondre(joueur.Book.Tomes[joueur.Book.currentTome].Pages[joueur.Book.Tomes[joueur.Book.currentTome].currentPage])){
-            println("BIEN JOUER!!");
-        }else{
-            println("T'ES NUL!!");
-        }
+        cursor(0, 0);
+        printLogo(Landscape[0],0,0);
+        printLogo(Logos[0],20,60);
+        cursor(37,70);
+        print("Appuie sur entré pour commencer");
+        
+        joueur = newPlayer();
+        
+        printResumerQuestionPage(
+            choixPage(
+                choixTome(
+                    joueur.Book
+                )
+            )       
+        );
     }
     //answers manager functions
     boolean repondre(Page p){
@@ -60,9 +48,70 @@ class LivreTest extends Program{
             }
             println("BONNE RÉPONSE!!");
         }
+        for(int idxhist = 0; idxhist < p.qu[1]; idxhist++){
+            printTitle("Question " + idxhist + " en Francais");
+            delay(1000);
+            tmpQuestion = getQuestion(questionHistoire[joueur.lvl],(int)(random()*rowCount(questionHistoire[joueur.lvl])-1)+1);
+            print(tmpQuestion);
+            print("reponse :");
+            tmprep = readInt();
+            if(tmprep != tmpQuestion.idxbon){
+                println("MAUVAISE REPONSE!!");
+                return false;
+            }
+            println("BONNE RÉPONSE!!");
+        }
+        for(int idxmath = 0; idxmath < p.qu[2]; idxmath++){
+            printTitle("Question " + idxmath + " en Mathematiques");
+            delay(1000);
+            tmpQuestion = getQuestion(questionMaths[joueur.lvl],(int)(random()*rowCount(questionMaths[joueur.lvl])-1)+1);
+            print(tmpQuestion);
+            print("reponse :");
+            tmprep = readInt();
+            if(tmprep != tmpQuestion.idxbon){
+                println("MAUVAISE REPONSE!!");
+                return false;
+            }
+            println("BONNE RÉPONSE!!");
+        }
         return true;
     }
     // usefull function
+    void printLogo(CSVFile file,int row,int col){
+        for(int line = 0; line < rowCount(file);line ++){
+            cursor(row+line,col);
+            print(getCell(file, line, 0));
+        }
+    }
+    Tome choixTome(Livre l){
+        Tome t;
+        do{
+            print(l);
+            print("quelle tome ?\t>");
+            t = l.Tomes[readInt()];
+            clearScreen();
+            print(t);
+            print("\nBon Tome? 0/1\t>");
+        }while(readInt() != 1);
+
+        return t;
+    }
+    Page choixPage(Tome t){
+        Page p;
+
+        do{
+            clearScreen();
+            print(t);
+            print("\nimprime quel page ?  :\t>");
+            p = t.Pages[readInt()];
+            clearScreen();
+            print(p);
+            delay(200);
+            print("\nBonne page ?0/1\t>");
+        }while(readInt() != 1);
+
+        return p;
+    }
     void linePrint(int length, char cara){
         for(int len = 0 ; len < length; len ++){
             print(cara);
@@ -72,9 +121,11 @@ class LivreTest extends Program{
     void printTitle(String text){
         println("\t" + text);
     }
-    
     // question function
     void print(Question q){
+        println();
+        clearScreen();
+        cursor(0,0);
         printTitle(q.qu);
         for(int i = 0; i < length(q.proposition); i ++){
             println("\t"+i+".\t"+q.proposition[i]);
@@ -102,6 +153,9 @@ class LivreTest extends Program{
     }
     //pages function
     void print(Page p){
+        println();
+        clearScreen();
+        cursor(0,0);
         int llength = 80;
         print(ANSI_YELLOW_BG + ANSI_BLACK);
         linePrint(llength, '=');
@@ -165,6 +219,21 @@ class LivreTest extends Program{
         };
         return null;
     }
+    void printResumerQuestionPage(Page p){
+        clearScreen();    
+        printTitle("Pour que ton sort fonction tu devra repondre au question du theme suivant ");
+        println(  ANSI_GREEN+ "\t\t"+ p.qu[0] +" en Francais" );
+        println(  ANSI_RED+ "\t\t"+ p.qu[1] + " en Histoire" );
+        println(  ANSI_BLUE+ "\t\t"+ p.qu[2] + " en Mathematique" );
+        println();
+        reset();
+        delay(3000);
+        if(repondre(p)){
+            println("Abraca dabroum lancé du sort");
+        }else{
+            println("*Pshhhhhh* *Boom* *clap* le Sort echoue  ");
+        }
+    }
     // tome function
     Tome newTome(String Titre,String color){
         Tome t = new Tome();
@@ -178,18 +247,31 @@ class LivreTest extends Program{
         t.sommet ++;
     }
     void print(Tome t){
+        println();
+        clearScreen();
+        cursor(0,0);
         print( ANSI_YELLOW_BG + ANSI_BLACK);
         linePrint(80, '-');
         printTitle(t.Titre);
         for(int i = 0;i < t.sommet ; i ++){
             print( ANSI_YELLOW_BG + ANSI_BLACK);
-            println(i +".\t"+t.Pages[i].Titre);
+            print(ajuster(i +".\t"+t.Pages[i].Titre,20));
             println(
-                ""
+                ANSI_GREEN + "\t＋ "+t.Pages[i].bonus[0]
+                +ANSI_RED +"\t⚔ "+t.Pages[i].bonus[1]
+                +ANSI_BLUE+"\t🛡 "+t.Pages[i].bonus[2] 
+                +ANSI_TEXT_DEFAULT_COLOR
             );
         }
         linePrint(80, '-');
         print( ANSI_BG_DEFAULT_COLOR + ANSI_TEXT_DEFAULT_COLOR);
+    }
+    String ajuster(String txt,int len){
+        String t = txt;
+        for(int i = 0; i<len-length(t);i++){
+            t+=" ";
+        }
+        return t;
     }
     // book function 
     Livre newLivre(){
@@ -204,6 +286,9 @@ class LivreTest extends Program{
         return l;
     }
     void print(Livre l){
+        clearScreen();
+        cursor(0,0);
+        println(ANSI_WHITE_BG);
         print( ANSI_YELLOW_BG + ANSI_BLACK );
         linePrint(80, '=');
         for(int t = 0 ; t < length(l.Tomes) ; t++){
