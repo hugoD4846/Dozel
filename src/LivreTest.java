@@ -15,7 +15,7 @@ class LivreTest extends Program{
     // main function
     
    
-    void algorithm(){
+    void _algorithm(){
         introduction();
         while(true){
         playerChose();
