@@ -4,4 +4,5 @@ class Page{
     int[] bonus = new int[3];
     int prix;
     int cout;
+    int idx;
 }

@@ -3,15 +3,15 @@ import extensions.CSVFile;
 class LivreTest extends Program{
     //global variables
     final CSVFile PageCSV = loadCSV("Page.csv");
-    final CSVFile[] questionFrancais = {loadCSV("QuCPFrancais.csv")};
-    final CSVFile[] questionHistoire = {loadCSV("QuCpHistoire.csv")};
-    final CSVFile[] questionMaths = {loadCSV("QuCPMaths.csv")};
+    final CSVFile[] questionFrancais = {loadCSV("QuCPFrancais.csv"),loadCSV("QuCE2Français.csv")};
+    final CSVFile[] questionHistoire = {loadCSV("QuCpHistoire.csv"),loadCSV("QuCE2Histoire.csv")};
+    final CSVFile[] questionMaths = {loadCSV("QuCPMaths.csv"),loadCSV("QuCE2Maths.csv")};
     final CSVFile[] Logos = {loadCSV("Titre.csv"),loadCSV("heart.csv")};
     final CSVFile[] Landscape = {loadCSV("Landscape1.csv")};
     final CSVFile[] knight = {loadCSV("Knight1.csv"),loadCSV("Knight2.csv")};
     final CSVFile[] cases = {loadCSV("Case1.csv")};
     CSVFile Save = loadCSV("Save.csv");
-    Player joueur = new Player();
+    Player joueur;
     // main function
     
    
@@ -39,7 +39,7 @@ class LivreTest extends Program{
         printLogo(Landscape[0],0,0,0);
         printLogo(Logos[0],20,60,0);
         cursor(0, 0);
-        delay(3000);
+        delay(1000);
     }
     void playerChose(){
         clearScreen();
@@ -67,7 +67,7 @@ class LivreTest extends Program{
         cursor(0,0);
     }
     void menucara(int id){
-        clearRect(60, 6+20*id, 95, 7);
+        drawRect(60, 6+20*id, 95, 7, ANSI_BG_DEFAULT_COLOR);
         cursor(6+20*id, 70);
         println("Hey salut ," + getCell(Save,id+1,0) + " heureux de te revoir ^^" );
         cursor(8+20*id, 70);
@@ -81,7 +81,7 @@ class LivreTest extends Program{
         switch (readInt()){
             case 1: 
             joueur = CSVToPlayer(id); 
-            //jeu();
+            jeu();
             saveGame(joueur);
             break;
             case 2:
@@ -172,7 +172,21 @@ class LivreTest extends Program{
             print(getCell(file, line, cell));
         }
     }
-    void clearRect(int x , int y , int width , int height){
+    void drawbox(int x, int y , int width , int height , String color){
+        for(int h = 0 ; h <  height ; h ++){
+            cursor(y+h, x);
+            print("|");
+            for(int w = 0 ; w < width - 2 ; w ++){
+                if(h == 0 || h == height-1){
+                    print("=");
+                }else{
+                    print(" ");
+                }
+            }
+            print("|");
+        }
+    }
+    void drawRect(int x , int y , int width , int height, String color){
         for(int h = 0 ; h <  height ; h ++){
             cursor(y+h, x);
             for(int w = 0 ; w < width ; w ++){
@@ -287,7 +301,7 @@ class LivreTest extends Program{
         reset();
         println();
     }
-    Page NewPage(String Titre , String description,int fr,int hist, int math,int vie, int dmg ,int shield , int prix , int cout){
+    Page NewPage(String Titre , String description,int fr,int hist, int math,int vie, int dmg ,int shield , int prix , int cout,int idx){
         Page p = new Page();
         p.Titre = Titre;
         p.Description = description;
@@ -299,7 +313,8 @@ class LivreTest extends Program{
         p.qu[2] = math;
         p.prix = prix;
         p.cout = cout;
-        
+        p.idx = idx;
+
         return p;
     }
     Page getPage(int row){
@@ -317,7 +332,8 @@ class LivreTest extends Program{
         stringToInt(getCell(PageCSV,row,6)),
         stringToInt(getCell(PageCSV,row,7)),
         stringToInt(getCell(PageCSV,row,8)),
-        stringToInt(getCell(PageCSV,row,9))
+        stringToInt(getCell(PageCSV,row,9)),
+        row
                               );
         };
         return null;
@@ -382,10 +398,7 @@ class LivreTest extends Program{
         l.Tomes[0] = newTome("GÉNERAL",ANSI_WHITE);
         l.Tomes[1] = newTome("SOIN",ANSI_GREEN);
         l.Tomes[2] = newTome("DEGAT",ANSI_RED);
-        l.Tomes[3] = newTome("PROTECTION",ANSI_BLUE);
-        for(int pageb = 0;pageb < 3; pageb ++){
-            addToLivre(l, getPage(pageb+1));
-            }   
+        l.Tomes[3] = newTome("PROTECTION",ANSI_BLUE); 
         return l;
     }
     void print(Livre l){
@@ -438,6 +451,7 @@ class LivreTest extends Program{
     }
     void creePerso(int save){
         clearScreen();
+        drawbox(5, 5, 100, 100, ANSI_BLUE);
         printTitle("Quelle est ton prenom ?");
         String tmpName  = readString();
         printTitle("dans quelle classe est tu ?");
@@ -445,6 +459,9 @@ class LivreTest extends Program{
         printTitle("choisis ton chevalier\t>");
         int tmpknight = readInt(); 
         joueur = newPlayer(tmpName,3,tmplvl,save,10,10,1,1,tmpknight,new boolean []{false,false,false});
+        for(int pageb = 0;pageb < 3; pageb ++){
+            addToLivre(joueur.Book, getPage(pageb+1));
+        }   
         print("c'est creer");
         addToSave(save+1, CSVToString(Save), joueur);
     }
@@ -470,10 +487,17 @@ class LivreTest extends Program{
         tmpsave[id][5] = ""+p.x;
         tmpsave[id][6] = ""+p.y;
         tmpsave[id][7] = ""+p.knight;
-        tmpsave[id][8] = ""+length(p.Book.Tomes[0].Pages);
+        tmpsave[id][8] = ""+p.Book.Tomes[0].sommet;
         tmpsave[id][9] = ""+p.Boss[0];
         tmpsave[id][10] = ""+p.Boss[1];
         tmpsave[id][11] = ""+p.Boss[2];
+        for(int pa = 0; pa < 25; pa++){
+            if( pa < p.Book.Tomes[0].sommet){
+                tmpsave[id][12+pa] = ""+p.Book.Tomes[0].Pages[pa].idx;
+            }else{
+                tmpsave[id][12+pa] = "null";
+            }
+        }
         saveCSV(tmpsave, "Save.csv");
         Save = loadCSV("Save.csv");
     }
@@ -486,7 +510,7 @@ class LivreTest extends Program{
         Save = loadCSV(filename);
     }
     Player CSVToPlayer(int id){ 
-        return newPlayer(
+        Player p = newPlayer(
                     getCell(Save, id+1, 0),//prenom
         stringToInt(getCell(Save, id+1, 1)),//point de vie
         stringToInt(getCell(Save, id+1, 2)),//niveau
@@ -501,6 +525,11 @@ class LivreTest extends Program{
         stringToBoolean(getCell(Save, id+1, 10)),
         stringToBoolean(getCell(Save, id+1, 11))}
         );
+
+        for(int s = 0; s < stringToInt(getCell(Save, id+1, 8)) ; s ++){
+            addToLivre(p.Book, getPage(stringToInt(getCell(Save, id+1, s+12))));
+        }
+        return p;
 
     }
     void testSave(){
