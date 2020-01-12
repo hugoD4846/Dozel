@@ -12,26 +12,31 @@ class LivreTest extends Program{
     final CSVFile[] cases = {loadCSV("Case1.csv")};
     CSVFile Save = loadCSV("Save.csv");
     Player joueur;
+
+
+    ///// play constante 
+    final CSVFile mapCSV = loadCSV("map.csv");
+    final CSVFile tilesCSV = loadCSV("tile.csv");
+    final CSVFile subtilesCSV = loadCSV("subtile.csv");
     // main function
     
    
-    void _algorithm(){
+    void algorithm(){
+        print(ANSI_CURSOR_HIDE);
         introduction();
         while(true){
         playerChose();
         }
     }
-    void jeu(){
-        boolean play = true;
-        while(play){
-            printResumerQuestionPage(
+    
+    void combat(){
+        printResumerQuestionPage(
                 choixPage(
                     choixTome(
                         joueur.Book
                     )
                 )      
             );
-        }
     }
     void introduction(){
         clearScreen();
@@ -39,7 +44,7 @@ class LivreTest extends Program{
         printLogo(Landscape[0],0,0,0);
         printLogo(Logos[0],20,60,0);
         cursor(0, 0);
-        delay(1000);
+        readString();
     }
     void playerChose(){
         clearScreen();
@@ -463,7 +468,7 @@ class LivreTest extends Program{
         cursor(32,50);
         print("choisis ton chevalier\t>");
         int tmpknight = readInt(); 
-        joueur = newPlayer(tmpName,3,tmplvl,save,10,10,1,1,tmpknight,new boolean []{false,false,false});
+        joueur = newPlayer(tmpName,3,tmplvl,save,10,10,0,0,tmpknight,new boolean []{false,false,false});
         for(int pageb = 0;pageb < 3; pageb ++){
             addToLivre(joueur.Book, getPage(pageb+1));
         }   
@@ -563,15 +568,285 @@ class LivreTest extends Program{
         String [][] tmpSave = CSVToString(Save);
 
         assertEquals(tmpSave[1][0], p.Prenom);
-        assertEquals(tmpSave[1][1], ""+p.lvl);
-        assertEquals(tmpSave[1][4], ""+p.x);
-        assertEquals(tmpSave[1][5], ""+p.y);
-        assertEquals(tmpSave[1][2], ""+p.mapX);
-        assertEquals(tmpSave[1][3], ""+p.mapY);
+        assertEquals(tmpSave[1][2], ""+p.lvl);
+        assertEquals(tmpSave[1][5], ""+p.x);
+        assertEquals(tmpSave[1][6], ""+p.y);
+        assertEquals(tmpSave[1][3], ""+p.mapX);
+        assertEquals(tmpSave[1][4], ""+p.mapY);
 
 
         // test suppr save
         
 
     }
+
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                              /!\  DEBUT JEU
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void jeu(){
+        clearScreen();
+        play = true;
+        while(play){
+            print(GameMap.tiles[joueur.mapY][joueur.mapX],mapanchor[0],mapanchor[1]);
+            drawRect(mapanchor[1]+64,mapanchor[0], 20, 32, ANSI_BG_DEFAULT_COLOR);
+            printPlayer();
+            input();
+            if(false){
+                combat();
+            }
+            
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void input(){
+        enableKeyTypedInConsole(true);
+        cursor(0, 0);
+        rightInput = false;
+        while(! rightInput){
+            delay(50);
+        }
+    }
+
+    void keyTypedInConsole(char c){
+        cursor(0, 0);
+        tile currenttile = GameMap.tiles[joueur.mapY][joueur.mapX];
+        switch(c){
+            case ANSI_UP:
+                joueur.y -= colliUP(currenttile);
+                if(joueur.y <= 0){
+                    joueur.mapY --;
+                    joueur.y = 31 - 2 ;
+                }
+            break;
+            case ANSI_DOWN:
+            joueur.y += colliDOWN(currenttile);
+            if(joueur.y+2 >= 31){
+                joueur.mapY ++;
+                joueur.y = 0;
+            }
+            break;
+            case ANSI_LEFT:
+            joueur.x -= colliLEFT(currenttile);
+            if(joueur.x <= 0){
+                joueur.mapX --;
+                joueur.x = 31;
+            }
+            break;
+            case ANSI_RIGHT:
+            joueur.x += colliRIGHT(currenttile);
+            if(joueur.x >= 31){
+                joueur.mapX ++;
+                joueur.x = 0;
+            }
+            break;
+            case 'q':
+            play = false;
+            break;
+        }
+        printpos(joueur);
+        rightInput = true;
+        enableKeyTypedInConsole(false);
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // collision detetection 
+    int colliUP(tile til){
+        for(int dy = 0 ; dy < joueur.vy ; dy ++){
+            if(
+                joueur.y - dy < 0 ||
+                til.subtiles[(joueur.y-dy)/8][joueur.x/8].cell
+                [(joueur.y - (8*((joueur.y-dy)/8)))-dy]
+                [joueur.x - (8*(joueur.x/8))] 
+                != 0
+            ){
+                return dy-1;
+            }
+        }
+        return joueur.vy;
+    }
+    int colliDOWN(tile til){
+        for(int dy = 0 ; dy < joueur.vy ; dy ++){
+            if(
+                joueur.y + dy + 2 > 32 ||
+                til.subtiles[(joueur.y+dy+2)/8][joueur.x/8].cell
+                [(joueur.y - (8*((joueur.y+dy+2)/8)))+dy+2]
+                [joueur.x - (8*(joueur.x/8))] 
+                != 0
+            ){
+                return dy-1;
+            }
+        }
+        return joueur.vy;
+    }
+    int colliLEFT(tile til){
+        for(int height = 0 ; height < 3;height ++){
+            for(int dx = 0 ; dx < joueur.vx ; dx ++){
+                if(
+                    joueur.x - dx < 0 ||
+                    til.subtiles[(joueur.y+height)/8][(joueur.x-dx)/8].cell
+                    [(joueur.y - (8*((joueur.y+height)/8)))]
+                    [(joueur.x - (8*((joueur.x-dx)/8)))-dx] 
+                    != 0
+                ){
+                    return dx-1;
+                }
+            }
+        }
+        return joueur.vy;
+    }
+    int colliRIGHT(tile til){
+        for(int height = 0 ; height < 3;height ++){
+            for(int dx = 0 ; dx < joueur.vx ; dx ++){
+                cursor(1, 0);
+                print(dx);
+                print(joueur.x);
+                if(
+                    joueur.x + dx > 31 ||
+                    til.subtiles[(joueur.y+height)/8][(joueur.x+dx)/8].cell
+                    [(joueur.y - (8*((joueur.y+height)/8)))]
+                    [(joueur.x - (8*((joueur.x+dx)/8)))+dx] 
+                    != 0
+                ){
+                    return dx-1;
+                }
+            }
+        }
+        return joueur.vy;
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    boolean rightInput,play;
+    final map GameMap = CSVtoMap();
+    final int[] mapanchor = {7,50};
+    final CSVFile caracter = loadCSV("caracter.csv");
+    final texture[] textures = {
+        NewTexture("Ground", (char) 9617, ANSI_GREEN, ANSI_YELLOW_BG),
+        NewTexture("Caracter", (char) 492 , ANSI_BLUE , ANSI_YELLOW_BG),
+        NewTexture("Enemie", (char) 26, ANSI_RED, ""),
+        NewTexture("Tree", (char) 9035, ANSI_BOLD+ANSI_GREEN, ANSI_GREEN_BG) ,
+        NewTexture("Water", ' ', ANSI_BLUE, ANSI_BLUE_BG)
+    };
+    void printpos(Player p){
+        cursor(0, 0);
+        print("["+ p.x+";"+p.y+"]");
+    }
+    void printPlayer(){
+        print(textures[1].forground+textures[1].background);
+        printLogo(caracter, mapanchor[0]+joueur.y, mapanchor[1]+(joueur.x * 2), 0);
+        reset();
+        cursor(0, 0);
+    }
+    texture NewTexture(String name,char skin,String forground, String background){
+        texture t = new texture();
+        t.nom = name;
+        t.skin = skin;
+        t.forground = forground;
+        t.background = background;
+
+        return t;
+    }
+    void testCSVToSubtile(){
+        subtile s = CSVToSubtile(0);
+        assertEquals(0,s.cell[0][7]);
+    }
+    subtile CSVToSubtile(int idx){
+        subtile s = new subtile();
+
+        s.name = getCell(subtilesCSV, 8 * idx, 8 );
+        for(int y = 0; y < 8; y ++){
+            for( int x = 0 ; x < 8; x ++){
+                s.cell[y][x] = stringToInt(getCell(subtilesCSV, y + 8 * idx, x));
+            }
+        }
+
+        return s;
+    }
+    void testCSVToTile(){
+        tile t = CSVToTile(1);
+        assertEquals("point",t.name);
+    }
+    tile CSVToTile(int idx){
+        tile t = new tile();
+
+        t.name = getCell(tilesCSV, 4 * idx, 4 );
+        for(int y = 0; y < 4; y ++){
+            for( int x = 0 ; x < 4; x ++){
+                t.subtiles[y][x] = CSVToSubtile(stringToInt(getCell(tilesCSV, y + 4 * idx, x)));
+            }
+        }
+
+        return t;
+    }
+    void testCSVToMap(){
+        map m = CSVtoMap();
+        assertEquals(m.tiles[20][0].subtiles[0][1].cell[0][0], 0);
+    }
+    map CSVtoMap(){
+        map m = new map();
+        m.tiles = new tile [rowCount(mapCSV)][columnCount(mapCSV)];
+        for(int y = 0 ; y < rowCount(mapCSV); y ++){
+            for( int x = 0 ; x < columnCount(mapCSV); x ++){
+                m.tiles[y][x] = CSVToTile(stringToInt(getCell(mapCSV, y, x)));
+                
+            }
+        }
+
+        return m;
+    }
+    /*
+    void testPrintMap(){
+        print(CSVtoMap(),0,0);
+    }*/
+    // TODO: map marche pas
+    void print(map m ,int row, int col){
+        // map dimension
+        for(int y3 = 0 ; y3 < length(m.tiles,1); y3 ++){
+            for(int x3 = 0 ; x3 < length(m.tiles, 2) ; x3 ++){
+                print(m.tiles[y3][x3],row+32*y3,col + 32*x3);
+            }
+        }
+        cursor(0,0);
+    }
+    void testPrintTile(){
+        print(CSVToTile(0),7,50);
+    }
+    void print(tile t,int row , int col){
+        // tile dimension
+        for(int y2 = 0 ; y2 < length(t.subtiles,1); y2 ++){
+            cursor(row+8*y2, col);
+            for(int x2 = 0 ; x2 < length(t.subtiles, 2) ; x2 ++){
+                print(t.subtiles[y2][x2],row+8*y2,col+16*x2);
+            }
+        }
+        cursor(0, 0);
+    }
+    void print(subtile s,int row , int col){
+        // subtile dimension
+        texture tmpt;
+        for(int y1 = 0 ; y1 < length(s.cell,1); y1 ++){
+            cursor(row+ y1, col );
+            for(int x1 = 0 ; x1 < length(s.cell, 2) ; x1 ++){
+                // cell dimension
+                tmpt = textures[s.cell[y1][x1]];
+                print(tmpt.forground+tmpt.background+tmpt.skin+" ");
+                reset();
+            }
+        }
+        cursor(0, 0);
+    }
+    
 }
