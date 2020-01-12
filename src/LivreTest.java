@@ -3,7 +3,7 @@ import extensions.CSVFile;
 class LivreTest extends Program{
     //global variables
     final CSVFile PageCSV = loadCSV("Page.csv");
-    final CSVFile[] questionFrancais = {loadCSV("QuCPFrancais.csv"),loadCSV("QuCE2Français.csv"),loadCSV("QuCM2Français.csv")};
+    final CSVFile[] questionFrancais = {loadCSV("QuCPFrancais.csv"),loadCSV("QuCE2Français.csv"),loadCSV("QuCM2Francais.csv")};
     final CSVFile[] questionHistoire = {loadCSV("QuCpHistoire.csv"),loadCSV("QuCE2Histoire.csv"),loadCSV("QuCM2Histoire.csv")};
     final CSVFile[] questionMaths = {loadCSV("QuCPMaths.csv"),loadCSV("QuCE2Maths.csv"),loadCSV("QuCM2Maths.csv")};
     final CSVFile[] Logos = {loadCSV("Titre.csv"),loadCSV("heart.csv")};
