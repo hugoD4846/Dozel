@@ -1,5 +1,22 @@
 Titre,description,fr,hist,math,vie,dmg,shield,cout,prix
 Tranchant,Améliore le tranchant de ton arme pour un tour,0,1,0,0,1,0,1,0
-Bouclier,Te permet de te proteger contre un certain nombre degat,0,0,1,0,0,1,1,0
-Soin,"Te rend des points de vie ",1,0,0,1,0,0,1,0
-test,"c'est qu'un test",1,1,1,1,1,1,1,1
+Bouclier,Te permet de te proteger contre un certain nombre degat,0,1,1,0,0,2,1,0
+Soin,Te rend des points de vie ,1,0,0,1,0,0,1,0
+Protection,Te permet de te proteger pendant un tour ,0,0,1,0,0,1,1,11
+Flamme,Permet d’attaquer à l’aide d’une flamme,0,1,0,0,1,0,1,14
+Esquive,Permet d’esquiver l’attaque de l’adversaire,0,0,1,0,0,1,1,11
+Piquant,Pique ton adversaire,0,1,0,0,1,0,1,11
+Poison,Empoisonne ton ennemie,1,0,0,0,1,0,1,11
+Eclair,Un eclair frappe votre ennemie,0,0,1,0,1,0,1,12
+Regeneration,Regagne un point de vie,1,0,0,1,0,1,1,11
+Griffe,Attaque l'ennemi avec des griffes de 2 fois,1,1,0,0,2,0,1,15
+Morsure,Mord ton adversaire ,1,0,0,0,1,0,1,10
+Météore,envoie un meteorite sur l’adversaire,0,0,1,0,1,0,1,10
+Sangsue,Prend un point de vie à l’ennemie et permet d’en gagner un,1,1,0,1,1,0,1,13
+Boucli-vol,Prend un point de bouclier à l’ennemie et permet d’en gagner un,1,0,1,0,1,1,1,13
+Repos,n’a aucun effet,0,0,0,0,0,0,1,0
+Pyrotechnie,Brûle l’adversaire,0,1,1,0,2,0,1,16
+Pique,Pique son adversaire,1,0,0,0,1,0,1,12
+Acier,Te permet de te proteger contre un certain nombre degat,0,0,1,0,0,1,1,12
+Phytothérapie,"Grâce aux plantes vous gagnez des point de vie",1,0,1,2,0,0,1,14
+Paresse,n’a aucun effet,0,0,0,0,0,0,1,0

@@ -3,12 +3,12 @@ import extensions.CSVFile;
 class LivreTest extends Program{
     //global variables
     final CSVFile PageCSV = loadCSV("Page.csv");
-    final CSVFile[] questionFrancais = {loadCSV("QuCPFrancais.csv"),loadCSV("QuCE2Français.csv")};
-    final CSVFile[] questionHistoire = {loadCSV("QuCpHistoire.csv"),loadCSV("QuCE2Histoire.csv")};
-    final CSVFile[] questionMaths = {loadCSV("QuCPMaths.csv"),loadCSV("QuCE2Maths.csv")};
+    final CSVFile[] questionFrancais = {loadCSV("QuCPFrancais.csv"),loadCSV("QuCE2Français.csv"),loadCSV("QuCM2Français.csv")};
+    final CSVFile[] questionHistoire = {loadCSV("QuCpHistoire.csv"),loadCSV("QuCE2Histoire.csv"),loadCSV("QuCM2Histoire.csv")};
+    final CSVFile[] questionMaths = {loadCSV("QuCPMaths.csv"),loadCSV("QuCE2Maths.csv"),loadCSV("QuCM2Maths.csv")};
     final CSVFile[] Logos = {loadCSV("Titre.csv"),loadCSV("heart.csv")};
     final CSVFile[] Landscape = {loadCSV("Landscape1.csv")};
-    final CSVFile[] knight = {loadCSV("Knight1.csv"),loadCSV("Knight2.csv")};
+    final CSVFile[] knight = {loadCSV("Knight1.csv"),loadCSV("Knight2.csv"),loadCSV("knight3.csv")};
     final CSVFile[] cases = {loadCSV("Case1.csv")};
     CSVFile Save = loadCSV("Save.csv");
     Player joueur;
@@ -87,9 +87,6 @@ class LivreTest extends Program{
             case 2:
             supprSave("Save.csv",id);
             break;
-            case 3:
-
-            break;
         }
     }
     void saveprint(){
@@ -101,7 +98,7 @@ class LivreTest extends Program{
     }
     void printcarac(int nbr){
         printcaraicon(nbr, stringToInt(getCell(Save, nbr+1,7)));
-        printlife(stringToInt(getCell(Save,nbr+1,1)),14+20*nbr, 80);
+        printlife(stringToInt(getCell(Save,nbr+1,1)),13+20*nbr, 80);
         cursor(8+ 20 * nbr, 100);
         print(nbr+":\t"+ getCell(Save,nbr+1,0));
         cursor(0, 0);
@@ -451,12 +448,20 @@ class LivreTest extends Program{
     }
     void creePerso(int save){
         clearScreen();
-        drawbox(5, 5, 100, 100, ANSI_BLUE);
-        printTitle("Quelle est ton prenom ?");
+        drawbox(40, 4, 100, 100, ANSI_BLUE);
+        cursor(10,50);
+        print("Quelle est ton prenom ?\t>");
         String tmpName  = readString();
-        printTitle("dans quelle classe est tu ?");
+        cursor(13,50);
+        print("dans quelle classe est tu ?"+ANSI_GREEN+"0:CP 1:CE1-CE2 2:CM1-CM2"+ANSI_TEXT_DEFAULT_COLOR+"\t>");
         int tmplvl = readInt();
-        printTitle("choisis ton chevalier\t>");
+        for(int k = 0 ; k < length(knight); k ++){
+            printLogo(knight[k], 15 , 41+ 35 * k,0);
+            cursor(30,57+32*k);
+            print(ANSI_GREEN +">>"+k+"<<"+ANSI_TEXT_DEFAULT_COLOR);
+        }
+        cursor(32,50);
+        print("choisis ton chevalier\t>");
         int tmpknight = readInt(); 
         joueur = newPlayer(tmpName,3,tmplvl,save,10,10,1,1,tmpknight,new boolean []{false,false,false});
         for(int pageb = 0;pageb < 3; pageb ++){
