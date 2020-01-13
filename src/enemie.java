@@ -1,5 +1,6 @@
 class enemie {
-    SkinMat Skin;
-    int x,y,lifeP,idx;
+    matiere mat;
+    int x,y,lifeP;
+    Livre book;
     boolean BOSS;
 }

@@ -584,6 +584,70 @@ class LivreTest extends Program{
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    enemie NewEnemie(matiere mat,int x , int y , int pdv, boolean Boss){
+        enemie e = new enemie();
+        e.mat = mat;
+        e.x = x;
+        e.y = y;
+        e.lifeP = pdv;
+        e.book = newLivre();
+        e.BOSS = Boss;
+        for(int s = 0; s < 3; s ++){
+            println(">>Page");
+            addToLivre(e.book,getPage((int)(random()*rowCount(PageCSV)-1)+1));
+        }
+
+        return e;
+    }
+
+    void move(enemie e){
+        int dy,dx;
+        do{
+            dx = (int)pow(-1, (int)(random()*3));
+            dy = (int)pow(-1, (int)(random()*3));
+            print("connard");
+        }while(
+            e.y + dy < 3
+            ||
+            e.y + dy > 29
+            ||
+            e.x + dx < 3
+            ||
+            e.x + dx > 29
+            ||
+            GameMap.tiles[joueur.mapY][joueur.mapX].subtiles[(e.y+dy)/8][(e.x+dx)/8].cell[e.y+dy - (8*((e.y+dy)/8))][e.x+dx - (8*((e.x+dx)/8))] !=0 
+        );
+        e.x += dx;
+        e.y += dy;
+    }
+    void moves(enemie[]es){
+        for(int e = 0;e < length(es);e++){
+            move(es[e]);
+        }
+    }
+    void enemieWave(){
+        enemies = new enemie[(int)(random()*10)];
+        int ex,ey;
+        for(int es = 0 ;  es < length(enemies); es++){
+            do{
+                ex = (int)(random()*26)+3;
+                ey = (int)(random()*26)+3;
+
+            }while(GameMap.tiles[joueur.mapY][joueur.mapX].subtiles[(ey)/8][(ey)/8].cell[ey - (8*((ey)/8))][ex - (8*((ex)/8))] !=0);
+            enemies[es]=NewEnemie(mat[(int)(random()*length(mat))], ex , ey, 3 + (int)(random()*2), false);
+        }
+    }
+    void print(enemie e){
+        print(e.mat.color);
+        printLogo(caracter, mapanchor[0]+e.y, mapanchor[1]+(e.x * 2), 0);
+        reset();
+        cursor(0, 0);
+    }
+    void print(enemie[] es){
+        for(int e = 0 ; e < length(es);e++){
+            print(es[e]);
+        }
+    }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -601,14 +665,18 @@ class LivreTest extends Program{
     void jeu(){
         clearScreen();
         play = true;
+        enemieWave();
         while(play){
             print(GameMap.tiles[joueur.mapY][joueur.mapX],mapanchor[0],mapanchor[1]);
-            drawRect(mapanchor[1]+64,mapanchor[0], 20, 32, ANSI_BG_DEFAULT_COLOR);
             printPlayer();
+            print(enemies);
+            drawRect(mapanchor[1]+64,mapanchor[0], 20, 32, ANSI_BG_DEFAULT_COLOR);
             input();
             if(false){
                 combat();
             }
+            moves(enemies);
+            
             
         }
     }
@@ -629,9 +697,10 @@ class LivreTest extends Program{
         switch(c){
             case ANSI_UP:
                 joueur.y -= colliUP(currenttile);
-                if(joueur.y <= 0){
+                if(joueur.y <= 0 && joueur.mapY > 0){
                     joueur.mapY --;
                     joueur.y = 31 - 2 ;
+                    enemieWave();
                 }
             break;
             case ANSI_DOWN:
@@ -639,6 +708,7 @@ class LivreTest extends Program{
             if(joueur.y+2 >= 31){
                 joueur.mapY ++;
                 joueur.y = 0;
+                enemieWave();
             }
             break;
             case ANSI_LEFT:
@@ -646,6 +716,7 @@ class LivreTest extends Program{
             if(joueur.x <= 0){
                 joueur.mapX --;
                 joueur.x = 31;
+                enemieWave();
             }
             break;
             case ANSI_RIGHT:
@@ -653,6 +724,7 @@ class LivreTest extends Program{
             if(joueur.x >= 31){
                 joueur.mapX ++;
                 joueur.x = 0;
+                enemieWave();
             }
             break;
             case 'q':
@@ -699,7 +771,7 @@ class LivreTest extends Program{
                 if(
                     joueur.x - dx < 0 ||
                     til.subtiles[(joueur.y+height)/8][(joueur.x-dx)/8].cell
-                    [(joueur.y - (8*((joueur.y+height)/8)))]
+                    [(joueur.y - (8*((joueur.y+height)/8))+height)]
                     [(joueur.x - (8*((joueur.x-dx)/8)))-dx] 
                     != 0
                 ){
@@ -718,7 +790,7 @@ class LivreTest extends Program{
                 if(
                     joueur.x + dx > 31 ||
                     til.subtiles[(joueur.y+height)/8][(joueur.x+dx)/8].cell
-                    [(joueur.y - (8*((joueur.y+height)/8)))]
+                    [(joueur.y - (8*((joueur.y+height)/8))+height)]
                     [(joueur.x - (8*((joueur.x+dx)/8)))+dx] 
                     != 0
                 ){
@@ -733,13 +805,20 @@ class LivreTest extends Program{
     final map GameMap = CSVtoMap();
     final int[] mapanchor = {7,50};
     final CSVFile caracter = loadCSV("caracter.csv");
+    enemie [] enemies;
     final texture[] textures = {
         NewTexture("Ground", (char) 9617, ANSI_GREEN, ANSI_YELLOW_BG),
-        NewTexture("Caracter", (char) 492 , ANSI_BLUE , ANSI_YELLOW_BG),
+        NewTexture("Caracter", (char) 492 , ANSI_PURPLE, ANSI_YELLOW_BG),
         NewTexture("Enemie", (char) 26, ANSI_RED, ""),
         NewTexture("Tree", (char) 9035, ANSI_BOLD+ANSI_GREEN, ANSI_GREEN_BG) ,
         NewTexture("Water", ' ', ANSI_BLUE, ANSI_BLUE_BG)
     };
+    final matiere[] mat = {
+        NewMatiere(MATIERE.MATHEMATIQUES,ANSI_BLUE),
+        NewMatiere(MATIERE.FRANCAIS,ANSI_GREEN),
+        NewMatiere(MATIERE.HISTOIRE,ANSI_RED)
+    }; 
+    
     void printpos(Player p){
         cursor(0, 0);
         print("["+ p.x+";"+p.y+"]");
@@ -758,6 +837,13 @@ class LivreTest extends Program{
         t.background = background;
 
         return t;
+    }
+    matiere NewMatiere(MATIERE mat, String color){
+        matiere m = new matiere();
+        m.mat = mat;
+        m.color = color;
+
+        return m;
     }
     void testCSVToSubtile(){
         subtile s = CSVToSubtile(0);
@@ -848,5 +934,4 @@ class LivreTest extends Program{
         }
         cursor(0, 0);
     }
-    
 }

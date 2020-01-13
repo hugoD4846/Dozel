@@ -129,26 +129,14 @@ public class Dozel extends Program {
     
     // ennemies function
     
-    SkinMat newSkinMat(MATIERE mat,String skin,String color){
-        SkinMat s = new SkinMat();
-        s.mat = mat;
-        s.color = color;
-        s.skin = skin;
-        return s;
-    };
-    SkinMat [] Skins = {
-        newSkinMat(MATIERE.FRANCAIS,"" + (char) 9617,ANSI_GREEN),
-        newSkinMat(MATIERE.MATHEMATIQUE,"" + (char) 9617,ANSI_BLUE),
-        newSkinMat(MATIERE.HISTOIREGEO,"" + (char) 9617,ANSI_PURPLE)
-    };
+    
+    
     enemie newEnemie(int x,int y,int lifeP,boolean BOSS,int idx){
         enemie e = new enemie();
-        e.Skin = Skins[(int)(random()*length(Skins))];
         e.x = x;
         e.y = y;
         e.BOSS = BOSS;
         e.lifeP = lifeP;
-        e.idx = idx;
         return e;
     }
     enemie[] enemies = {
@@ -157,7 +145,7 @@ public class Dozel extends Program {
     void Move(enemie e){
     }
     void print(enemie e){
-        print("idx: "+e.idx+"\nx: "+e.x+"\ny: "+e.y+"\nlifeP: "+e.lifeP);
+        print("x: "+e.x+"\ny: "+e.y+"\nlifeP: "+e.lifeP);
     }
     
 
