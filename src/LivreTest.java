@@ -100,17 +100,16 @@ class LivreTest extends Program {
 
     void printcarac(int nbr) {
         printcaraicon(nbr, stringToInt(getCell(Save, nbr + 1, 7)));
-        printlife(stringToInt(getCell(Save, nbr + 1, 1)), 13 + 20 * nbr, 80);
+        printlife(CSVToPlayer(nbr), 13 + 20 * nbr, 80);
         cursor(8 + 20 * nbr, 100);
         print(nbr + ":\t" + getCell(Save, nbr + 1, 0));
         cursor(0, 0);
     }
 
-    void printlife(int pdv, int row, int col) {
-        print(pdv);
+    void printlife(Player P, int row, int col) {
         print(ANSI_RED);
-        for (int h = 0; h < 3; h++) {
-            if (h < pdv) {
+        for (int h = 0; h < P.pdvmax; h++) {
+            if (h < P.pdv) {
                 printLogo(Logos[1], row, col + 20 * h, 0);
             } else {
                 printLogo(Logos[1], row, col + 20 * h, 1);
@@ -140,7 +139,7 @@ class LivreTest extends Program {
             println("BONNE RÉPONSE!!");
         }
         for (int idxhist = 0; idxhist < p.qu[1]; idxhist++) {
-            printTitle("Question " + idxhist + " en Francais");
+            printTitle("Question " + idxhist + " en Histoire");
             delay(1000);
             tmpQuestion = getQuestion(questionHistoire[joueur.lvl],
                     (int) (random() * rowCount(questionHistoire[joueur.lvl]) - 1) + 1);
@@ -206,6 +205,7 @@ class LivreTest extends Program {
     }
 
     void drawbox(int x, int y, int width, int height, String color) {
+        print(color);
         for (int h = 0; h < height; h++) {
             cursor(y + h, x);
             print("|");
@@ -218,6 +218,7 @@ class LivreTest extends Program {
             }
             print("|");
         }
+        reset();
     }
 
     void drawRect(int x, int y, int width, int height, String color) {
@@ -624,7 +625,6 @@ class LivreTest extends Program {
         e.knight = (int) (random() * 3);
         e.BOSS = Boss;
         for (int s = 0; s < 3; s++) {
-            println(">>Page");
             addToLivre(e.Book, getPage((int) (random() * rowCount(PageCSV) - 1) + 1));
         }
 
@@ -632,16 +632,17 @@ class LivreTest extends Program {
     }
 
     void move(Player e) {
-        int dy, dx;
-        do {
-            dx = (int) pow(-1, (int) (random() * 3));
-            dy = (int) pow(-1, (int) (random() * 3));
-            print("connard");
-        } while (e.y + dy < 3 || e.y + dy > 29 || e.x + dx < 3 || e.x + dx > 29
-                || GameMap.tiles[joueur.mapY][joueur.mapX].subtiles[(e.y + dy) / 8][(e.x + dx) / 8].cell[e.y + dy
-                        - (8 * ((e.y + dy) / 8))][e.x + dx - (8 * ((e.x + dx) / 8))] != 0);
-        e.x += dx;
+        if(!e.dead){
+            int dy, dx;
+            do {
+                dx = (int) pow(-1, (int) (random() * 3));
+                dy = (int) pow(-1, (int) (random() * 3));
+            } while (e.y + dy < 3 || e.y + dy > 29 || e.x + dx < 3 || e.x + dx > 29
+                    || GameMap.tiles[joueur.mapY][joueur.mapX].subtiles[(e.y + dy) / 8][(e.x + dx) / 8].cell[e.y + dy
+                            - (8 * ((e.y + dy) / 8))][e.x + dx - (8 * ((e.x + dx) / 8))] != 0);
+            e.x += dx;
         e.y += dy;
+        }
     }
 
     void moves(Player[] es) {
@@ -660,16 +661,17 @@ class LivreTest extends Program {
 
             } while (GameMap.tiles[joueur.mapY][joueur.mapX].subtiles[(ey) / 8][(ey) / 8].cell[ey - (8 * ((ey) / 8))][ex
                     - (8 * ((ex) / 8))] != 0);
-            enemies[es] = NewEnemie(mat[(int) (random() * length(mat))], ex, ey, 3 + (int) (random() * 2), false,
-                    "Enemie\t" + es);
+            enemies[es] = NewEnemie(mat[(int) (random() * length(mat))], ex, ey, 3 + (int) (random() * 2), false,"Enemie\t" + es);
         }
     }
 
     void print(Player e) {
-        print(e.mat.color + ANSI_YELLOW_BG);
-        printLogo(caracter, mapanchor[0] + e.y, mapanchor[1] + (e.x * 2), 0);
-        reset();
-        cursor(0, 0);
+        if(!e.dead){
+            print(e.mat.color + ANSI_YELLOW_BG);
+            printLogo(caracter, mapanchor[0] + e.y, mapanchor[1] + (e.x * 2), 0);
+            reset();
+            cursor(0, 0);
+        }
     }
 
     void print(Player[] es) {
@@ -696,16 +698,23 @@ class LivreTest extends Program {
         do {
             playerTurn(p, e);
             printCombatField(p, e);
+            readString();
             if (e.pdv > 0) {
                 playerTurn(e, p);
+                printCombatField(p, e);
+                readString();
             }
-            printCombatField(p, e);
         } while (p.pdv > 0 && e.pdv > 0);
+        clearScreen();
         if (p.pdv <= 0) {
-            clearScreen();
             drawbox(20, 5, 100, 100, ANSI_RED_BG + ANSI_WHITE);
+            p.dead = true;
             play = false;
             supprSave("Save.csv", p.save);
+        }else{
+            e.dead = true;
+            e.x = -10;
+            e.y = -10;
         }
     }
 
@@ -718,7 +727,7 @@ class LivreTest extends Program {
             SortUtiliser = p.Book.Tomes[0].Pages[(int) (random() * p.Book.Tomes[0].sommet)];
         }
         print(SortUtiliser);
-        delay(1000);
+        readString();
         if (p == joueur) {
             printResumerQuestionPage(SortUtiliser);
             succesSort = repondre(SortUtiliser);
@@ -733,6 +742,7 @@ class LivreTest extends Program {
         } else {
             println("*Pshhhhhh* *Boom* *clap* le Sort echoue  ");
         }
+        readString();
     }
 
     void attack(Page page, Player e) {
@@ -761,7 +771,39 @@ class LivreTest extends Program {
     }
 
     void printCombatField(Player p, Player e) {
+        clearScreen();
+        printStat(e, 5, 20);
+        print(e.mat.color);
+        printLogo(knight[e.knight], 2, 100, 0);
+        reset();
+        printStat(p, 30, 55);
+        printLogo(knight[p.knight], 30, 20, 0);
 
+    }
+    void printStat(Player p,int row,int col){
+        drawbox(col, row, 90, 10, ANSI_WHITE_BG+ANSI_BLACK);
+        cursor(row+1, col+6);
+        print(ANSI_BLACK+ANSI_WHITE_BG+"Nom :\t"+p.Prenom);
+        printlife(p, row+3, col+3);
+        printshieldbar(p.shield, row+2, col+3);
+    }
+    void printshieldbar(int shield, int row , int col){
+        cursor(row, col);
+        for(int s = 0 ; s < shield; s ++){
+            print(ANSI_BLUE_BG+ANSI_WHITE+"🛡");
+        }
+        reset();
+    }
+    void printlifebar(Player p,int row ,int col){
+        cursor(row, col);
+        for(int l = 0 ; l < p.pdvmax ; l ++){
+            if(l < p.pdv){
+                print(ANSI_RED_BG + ANSI_WHITE + "❤");
+            }else{
+                print(ANSI_RED + ANSI_WHITE_BG + "❤");
+            }
+        }
+        reset();
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
