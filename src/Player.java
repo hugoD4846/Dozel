@@ -1,6 +1,7 @@
 class Player{
     String Prenom;
-    int pdv,x,y,mapX,mapY,lvl,save,knight;
+    //TODO: gold manage;
+    int pdv,x,y,mapX,mapY,lvl,save,knight,gold;
     int pdvmax = 3;
     int vx = 3;
     int vy = 2;
