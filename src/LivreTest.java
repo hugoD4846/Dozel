@@ -1,26 +1,44 @@
 import extensions.CSVFile;
 
-class LivreTest extends Program {
+class Dozel extends Program {
     // global variables
     final CSVFile PageCSV = loadCSV("Page.csv");
-    final CSVFile[] questionFrancais = { loadCSV("QuCPFrancais.csv"), loadCSV("QuCE2Français.csv"),
-            loadCSV("QuCM2Francais.csv") };
-    final CSVFile[] questionHistoire = { loadCSV("QuCpHistoire.csv"), loadCSV("QuCE2Histoire.csv"),
-            loadCSV("QuCM2Histoire.csv") };
+    final CSVFile[] questionFrancais = { loadCSV("QuCPFrancais.csv"), loadCSV("QuCE2Français.csv"),loadCSV("QuCM2Francais.csv") };
+    final CSVFile[] questionHistoire = { loadCSV("QuCpHistoire.csv"), loadCSV("QuCE2Histoire.csv"),loadCSV("QuCM2Histoire.csv") };
     final CSVFile[] questionMaths = { loadCSV("QuCPMaths.csv"), loadCSV("QuCE2Maths.csv"), loadCSV("QuCM2Maths.csv") };
     final CSVFile[] Logos = { loadCSV("Titre.csv"), loadCSV("heart.csv") };
     final CSVFile[] Landscape = { loadCSV("Landscape1.csv") };
     final CSVFile[] knight = { loadCSV("Knight1.csv"), loadCSV("Knight2.csv"), loadCSV("knight3.csv") };
     final CSVFile[] cases = { loadCSV("Case1.csv") };
-    CSVFile Save = loadCSV("Save.csv");
-    Player joueur;
-
-    ///// play constante
+    final CSVFile caracter = loadCSV("caracter.csv");
+    final CSVFile enemieCSV  = loadCSV("enemie.csv");
+    final CSVFile bossCSV = loadCSV("boss.csv");
     final CSVFile mapCSV = loadCSV("map.csv");
     final CSVFile tilesCSV = loadCSV("tile.csv");
     final CSVFile subtilesCSV = loadCSV("subtile.csv");
-    // main function
-
+    CSVFile Save = loadCSV("Save.csv");
+    final map GameMap = CSVtoMap();
+    final int[] mapanchor = { 7, 50 };
+    final matiere[] mat = { NewMatiere(MATIERE.MATHEMATIQUES, ANSI_BLUE), NewMatiere(MATIERE.FRANCAIS, ANSI_GREEN),
+        NewMatiere(MATIERE.HISTOIRE, ANSI_RED) };
+    Player[] enemies;
+    Player[] Boss = {
+        NewEnemie(mat[1], 16, 16, 3, true, "Conjugomax", 10, 6),
+        NewEnemie(mat[0], 16, 16, 3, true, "Calculomax", 10, 9),
+        NewEnemie(mat[2], 16, 16, 3, true, "Historio", 15, 12)
+    };
+    final texture[] textures = { NewTexture("Ground", (char) 9617, ANSI_GREEN, ANSI_YELLOW_BG),
+    NewTexture("Caracter", (char) 492, ANSI_PURPLE, ANSI_YELLOW_BG),
+    NewTexture("Enemie", (char) 26, ANSI_RED, ""),
+    NewTexture("Tree", (char) 9035, ANSI_BOLD + ANSI_GREEN, ANSI_GREEN_BG),
+    NewTexture("Water", ' ', ANSI_BLUE, ANSI_BLUE_BG) };
+    Player joueur;
+    boolean rightInput, play;
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////MAIN FUNCTION//////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     void algorithm() {
         print(ANSI_CURSOR_HIDE);
         introduction();
@@ -28,15 +46,28 @@ class LivreTest extends Program {
             playerChose();
         }
     }
-
-    void introduction() {
+    void jeu() {
         clearScreen();
-        cursor(0, 0);
-        printLogo(Landscape[0], 0, 0, 0);
-        printLogo(Logos[0], 20, 60, 0);
-        cursor(0, 0);
-        readString();
+        play = true;
+        enemieWave();
+        printMap(GameMap, 7, 138);
+        while (play) {
+            print(GameMap.tiles[joueur.mapY][joueur.mapX], mapanchor[0], mapanchor[1]);
+            printPlayer();
+            print(enemies);
+            drawRect(mapanchor[1] + 64, mapanchor[0], 20, 32, ANSI_BG_DEFAULT_COLOR);
+            input();
+            coliSCombat(joueur, enemies);
+            moves(enemies);
+            checkFin();
+        }
     }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////SAVE FUNCTION///////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     void playerChose() {
         clearScreen();
@@ -51,7 +82,6 @@ class LivreTest extends Program {
         JouerCreer(readInt());
 
     }
-
     void JouerCreer(int exist) {
         if (equals(getCell(Save, exist + 1, 0), "null")) {
             creePerso(exist);
@@ -60,12 +90,10 @@ class LivreTest extends Program {
             menucara(exist);
         }
     }
-
     void printcaraicon(int p, int k) {
         printLogo(knight[k], 6 + 20 * p, 24, 0);
         cursor(0, 0);
     }
-
     void menucara(int id) {
         drawRect(60, 6 + 20 * id, 95, 7, ANSI_BG_DEFAULT_COLOR);
         cursor(6 + 20 * id, 70);
@@ -89,7 +117,6 @@ class LivreTest extends Program {
             break;
         }
     }
-
     void saveprint() {
         for (int s = 0; s < 2; s++) {
             if (!equals(getCell(Save, s + 1, 0), "null")) {
@@ -97,7 +124,6 @@ class LivreTest extends Program {
             }
         }
     }
-
     void printcarac(int nbr) {
         printcaraicon(nbr, stringToInt(getCell(Save, nbr + 1, 7)));
         printlife(CSVToPlayer(nbr), 13 + 20 * nbr, 80);
@@ -105,21 +131,82 @@ class LivreTest extends Program {
         print(nbr + ":\t" + getCell(Save, nbr + 1, 0));
         cursor(0, 0);
     }
-
-    void printlife(Player P, int row, int col) {
-        print(ANSI_RED);
-        for (int h = 0; h < P.pdvmax; h++) {
-            if (h < P.pdv) {
-                printLogo(Logos[1], row, col + 20 * h, 0);
-            } else {
-                printLogo(Logos[1], row, col + 20 * h, 1);
-            }
-        }
-        print(ANSI_TEXT_DEFAULT_COLOR);
-        cursor(0, 0);
+    void saveGame(Player p) {
+        addToSave(p.save, CSVToString(Save), p);
     }
 
-    // answers manager functions
+    void addToSave(int id, String[][] save, Player p) {
+        String[][] tmpsave = save;
+        tmpsave[id][0] = p.Prenom;
+        tmpsave[id][1] = "" + p.pdv;
+        tmpsave[id][2] = "" + p.lvl;
+        tmpsave[id][3] = "" + p.mapX;
+        tmpsave[id][4] = "" + p.mapY;
+        tmpsave[id][5] = "" + p.x;
+        tmpsave[id][6] = "" + p.y;
+        tmpsave[id][7] = "" + p.knight;
+        tmpsave[id][8] = "" + p.Book.Tomes[0].sommet;
+        tmpsave[id][9] = "" + p.Boss[0];
+        tmpsave[id][10] = "" + p.Boss[1];
+        tmpsave[id][11] = "" + p.Boss[2];
+        for (int pa = 0; pa < 25; pa++) {
+            if (pa < p.Book.Tomes[0].sommet) {
+                tmpsave[id][12 + pa] = "" + p.Book.Tomes[0].Pages[pa].idx;
+            } else {
+                tmpsave[id][12 + pa] = "null";
+            }
+        }
+        saveCSV(tmpsave, "Save.csv");
+        Save = loadCSV("Save.csv");
+    }
+
+    void supprSave(String filename, int save) {
+        String[][] tmpsave = CSVToString(loadCSV(filename));
+        for (int x = 0; x < length(tmpsave, 2); x++) {
+            tmpsave[save + 1][x] = "null";
+        }
+        saveCSV(tmpsave, filename);
+        Save = loadCSV(filename);
+    }
+    void testSave() {
+        // test cree perso
+        String tPrenom = "Paul";
+        int tlvl = 0;
+        int tsave = 0;
+        int tx = 10;
+        int ty = 20;
+        int tmapX = 1;
+        int tmapY = 2;
+        int tpdv = 3;
+        boolean[] tBoss = { false, false, false };
+
+        Player p = newPlayer(tPrenom, tpdv, tlvl, tsave, tx, ty, tmapX, tmapY, 1, tBoss);
+        assertEquals(tPrenom, p.Prenom);
+        assertEquals(tlvl, p.lvl);
+        assertEquals(tsave, p.save);
+        assertEquals(tx, p.x);
+        assertEquals(ty, p.y);
+        assertEquals(tmapX, p.mapX);
+        assertEquals(tmapY, p.mapY);
+        // test addto save
+        addToSave(1, CSVToString(Save), p);
+
+        String[][] tmpSave = CSVToString(Save);
+
+        assertEquals(tmpSave[1][0], p.Prenom);
+        assertEquals(tmpSave[1][2], "" + p.lvl);
+        assertEquals(tmpSave[1][5], "" + p.x);
+        assertEquals(tmpSave[1][6], "" + p.y);
+        assertEquals(tmpSave[1][3], "" + p.mapX);
+        assertEquals(tmpSave[1][4], "" + p.mapY);
+    }
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////Question/Answers function//////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
     boolean repondre(Page p) {
         // francais
         int tmprep;
@@ -168,7 +255,6 @@ class LivreTest extends Program {
         }
         return true;
     }
-
     boolean repondreIA(Page p, Player e) {
         print(p);
         delay(1000);
@@ -195,15 +281,50 @@ class LivreTest extends Program {
         }
         return true;
     }
+    // question function
+    void print(Question q) {
+        println();
+        clearScreen();
+        cursor(0, 0);
+        printTitle(q.qu);
+        for (int i = 0; i < length(q.proposition); i++) {
+            println("\t" + i + ".\t" + q.proposition[i]);
+        }
+        println();
+    }
+    Question getQuestion(CSVFile matiere, int row) {
+        return NewQuestion(getCell(matiere, row, 0),
+                new String[] { getCell(matiere, row, 1), getCell(matiere, row, 2), getCell(matiere, row, 3) });
+    }
+    Question NewQuestion(String qu, String[] proposition) {
+        Question q = new Question();
+        q.qu = qu;
+        q.idxbon = (int) (random() * 3);
+        for (int i = 0; i < 3; i++) {
+            q.proposition[(i + q.idxbon) % 3] = proposition[i];
+        }
 
-    // usefull function
+        return q;
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // DRAWING function
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void introduction() {
+        clearScreen();
+        cursor(0, 0);
+        printLogo(Landscape[0], 0, 0, 0);
+        printLogo(Logos[0], 20, 60, 0);
+        cursor(0, 0);
+        readString();
+    }
     void printLogo(CSVFile file, int row, int col, int cell) {
         for (int line = 0; line < rowCount(file); line++) {
             cursor(row + line, col);
             print(getCell(file, line, cell));
         }
     }
-
     void drawbox(int x, int y, int width, int height, String color) {
         print(color);
         for (int h = 0; h < height; h++) {
@@ -230,12 +351,102 @@ class LivreTest extends Program {
         }
     }
 
+    void linePrint(int length, char cara) {
+        for (int len = 0; len < length; len++) {
+            print(cara);
+        }
+        println();
+    }
+
+    void printTitle(String text) {
+        println("\t" + text);
+    }
+
+    void printlife(Player P, int row, int col) {
+        print(ANSI_RED);
+        for (int h = 0; h < P.pdvmax; h++) {
+            if (h < P.pdv) {
+                printLogo(Logos[1], row, col + 20 * h, 0);
+            } else {
+                printLogo(Logos[1], row, col + 20 * h, 1);
+            }
+        }
+        print(ANSI_TEXT_DEFAULT_COLOR);
+        cursor(0, 0);
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////useful function////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     boolean stringToBoolean(String msg) {
         if (msg == "true") {
             return true;
         }
         return false;
     }
+    String ajuster(String txt, int len) {
+        String t = txt;
+        for (int i = 0; i < len - length(t); i++) {
+            t += " ";
+        }
+        return t;
+    }
+    String[][] CSVToString(CSVFile file) {
+        String[][] S = new String[rowCount(file)][columnCount(file)];
+        for (int y = 0; y < length(S, 1); y++) {
+            for (int x = 0; x < length(S, 2); x++) {
+                S[y][x] = getCell(file, y, x);
+            }
+        }
+        return S;
+    }
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////BOOK Function/////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    Livre newLivre() {
+        Livre l = new Livre();
+        l.Tomes[0] = newTome("GÉNERAL", ANSI_WHITE);
+        l.Tomes[1] = newTome("SOIN", ANSI_GREEN);
+        l.Tomes[2] = newTome("DEGAT", ANSI_RED);
+        l.Tomes[3] = newTome("PROTECTION", ANSI_BLUE);
+        return l;
+    }
+
+    void print(Livre l) {
+        clearScreen();
+        cursor(0, 0);
+        println(ANSI_WHITE_BG);
+        print(ANSI_YELLOW_BG + ANSI_BLACK);
+        linePrint(80, '=');
+        for (int t = 0; t < length(l.Tomes); t++) {
+            linePrint(80, '_');
+            printTitle(t + ".\t" + l.Tomes[t].Titre);
+            print(ANSI_YELLOW_BG + ANSI_BLACK);
+            println("\tNombre de pages : " + l.Tomes[t].sommet + "\n");
+            linePrint(80, '_');
+        }
+        linePrint(80, '=');
+        print(ANSI_BG_DEFAULT_COLOR + ANSI_TEXT_DEFAULT_COLOR);
+        println();
+    }
+
+    void addToLivre(Livre l, Page p) {
+        addToTome(l.Tomes[0], p);
+        if (p.bonus[0] > 0) {
+            addToTome(l.Tomes[1], p);
+        }
+        if (p.bonus[1] > 0) {
+            addToTome(l.Tomes[2], p);
+        }
+        if (p.bonus[2] > 0) {
+            addToTome(l.Tomes[3], p);
+        }
+    }
+
+    /////////////////////////////////////////Tome function////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     Tome choixTome(Livre l) {
         Tome t;
@@ -250,6 +461,39 @@ class LivreTest extends Program {
 
         return t;
     }
+    Tome newTome(String Titre, String color) {
+        Tome t = new Tome();
+        t.Titre = color + Titre + ANSI_TEXT_DEFAULT_COLOR;
+        t.sommet = 0;
+
+        return t;
+    }
+
+    void addToTome(Tome t, Page p) {
+        t.Pages[t.sommet] = p;
+        t.sommet++;
+    }
+
+    void print(Tome t) {
+        println();
+        clearScreen();
+        cursor(0, 0);
+        print(ANSI_YELLOW_BG + ANSI_BLACK);
+        linePrint(80, '-');
+        printTitle(t.Titre);
+        for (int i = 0; i < t.sommet; i++) {
+            print(ANSI_YELLOW_BG + ANSI_BLACK);
+            print(ajuster(i + ".\t" + t.Pages[i].Titre, 20));
+            println(ANSI_GREEN + "\t＋ " + t.Pages[i].bonus[0] + ANSI_RED + "\t⚔ " + t.Pages[i].bonus[1] + ANSI_BLUE
+                    + "\t🛡 " + t.Pages[i].bonus[2] + ANSI_TEXT_DEFAULT_COLOR);
+        }
+        linePrint(80, '-');
+        print(ANSI_BG_DEFAULT_COLOR + ANSI_TEXT_DEFAULT_COLOR);
+    }
+
+    ///////////////////////////////////////Page function//////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     Page choixPage(Tome t) {
         Page p;
@@ -266,45 +510,6 @@ class LivreTest extends Program {
         } while (readInt() != 1);
 
         return p;
-    }
-
-    void linePrint(int length, char cara) {
-        for (int len = 0; len < length; len++) {
-            print(cara);
-        }
-        println();
-    }
-
-    void printTitle(String text) {
-        println("\t" + text);
-    }
-
-    // question function
-    void print(Question q) {
-        println();
-        clearScreen();
-        cursor(0, 0);
-        printTitle(q.qu);
-        for (int i = 0; i < length(q.proposition); i++) {
-            println("\t" + i + ".\t" + q.proposition[i]);
-        }
-        println();
-    }
-
-    Question getQuestion(CSVFile matiere, int row) {
-        return NewQuestion(getCell(matiere, row, 0),
-                new String[] { getCell(matiere, row, 1), getCell(matiere, row, 2), getCell(matiere, row, 3) });
-    }
-
-    Question NewQuestion(String qu, String[] proposition) {
-        Question q = new Question();
-        q.qu = qu;
-        q.idxbon = (int) (random() * 3);
-        for (int i = 0; i < 3; i++) {
-            q.proposition[(i + q.idxbon) % 3] = proposition[i];
-        }
-
-        return q;
     }
 
     // pages function
@@ -381,88 +586,11 @@ class LivreTest extends Program {
         reset();
         delay(3000);
     }
-
-    // tome function
-    Tome newTome(String Titre, String color) {
-        Tome t = new Tome();
-        t.Titre = color + Titre + ANSI_TEXT_DEFAULT_COLOR;
-        t.sommet = 0;
-
-        return t;
-    }
-
-    void addToTome(Tome t, Page p) {
-        t.Pages[t.sommet] = p;
-        t.sommet++;
-    }
-
-    void print(Tome t) {
-        println();
-        clearScreen();
-        cursor(0, 0);
-        print(ANSI_YELLOW_BG + ANSI_BLACK);
-        linePrint(80, '-');
-        printTitle(t.Titre);
-        for (int i = 0; i < t.sommet; i++) {
-            print(ANSI_YELLOW_BG + ANSI_BLACK);
-            print(ajuster(i + ".\t" + t.Pages[i].Titre, 20));
-            println(ANSI_GREEN + "\t＋ " + t.Pages[i].bonus[0] + ANSI_RED + "\t⚔ " + t.Pages[i].bonus[1] + ANSI_BLUE
-                    + "\t🛡 " + t.Pages[i].bonus[2] + ANSI_TEXT_DEFAULT_COLOR);
-        }
-        linePrint(80, '-');
-        print(ANSI_BG_DEFAULT_COLOR + ANSI_TEXT_DEFAULT_COLOR);
-    }
-
-    String ajuster(String txt, int len) {
-        String t = txt;
-        for (int i = 0; i < len - length(t); i++) {
-            t += " ";
-        }
-        return t;
-    }
-
-    // book function
-    Livre newLivre() {
-        Livre l = new Livre();
-        l.Tomes[0] = newTome("GÉNERAL", ANSI_WHITE);
-        l.Tomes[1] = newTome("SOIN", ANSI_GREEN);
-        l.Tomes[2] = newTome("DEGAT", ANSI_RED);
-        l.Tomes[3] = newTome("PROTECTION", ANSI_BLUE);
-        return l;
-    }
-
-    void print(Livre l) {
-        clearScreen();
-        cursor(0, 0);
-        println(ANSI_WHITE_BG);
-        print(ANSI_YELLOW_BG + ANSI_BLACK);
-        linePrint(80, '=');
-        for (int t = 0; t < length(l.Tomes); t++) {
-            linePrint(80, '_');
-            printTitle(t + ".\t" + l.Tomes[t].Titre);
-            print(ANSI_YELLOW_BG + ANSI_BLACK);
-            println("\tNombre de pages : " + l.Tomes[t].sommet + "\n");
-            linePrint(80, '_');
-        }
-        linePrint(80, '=');
-        print(ANSI_BG_DEFAULT_COLOR + ANSI_TEXT_DEFAULT_COLOR);
-        println();
-    }
-
-    void addToLivre(Livre l, Page p) {
-        addToTome(l.Tomes[0], p);
-        if (p.bonus[0] > 0) {
-            addToTome(l.Tomes[1], p);
-        }
-        if (p.bonus[1] > 0) {
-            addToTome(l.Tomes[2], p);
-        }
-        if (p.bonus[2] > 0) {
-            addToTome(l.Tomes[3], p);
-        }
-    }
-
-    // playerr function
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////Player function //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     Player newPlayer(String prenom, int pdv, int lvl, int save, int x, int y, int mapX, int mapY, int knight,
             boolean[] Boss) {
         Player p = new Player();
@@ -482,7 +610,6 @@ class LivreTest extends Program {
 
         return p;
     }
-
     void creePerso(int save) {
         clearScreen();
         drawbox(40, 4, 100, 100, ANSI_BLUE);
@@ -508,55 +635,6 @@ class LivreTest extends Program {
         print("c'est creer");
         addToSave(save + 1, CSVToString(Save), joueur);
     }
-
-    String[][] CSVToString(CSVFile file) {
-        String[][] S = new String[rowCount(file)][columnCount(file)];
-        for (int y = 0; y < length(S, 1); y++) {
-            for (int x = 0; x < length(S, 2); x++) {
-                S[y][x] = getCell(file, y, x);
-            }
-        }
-        return S;
-    }
-
-    void saveGame(Player p) {
-        addToSave(p.save, CSVToString(Save), p);
-    }
-
-    void addToSave(int id, String[][] save, Player p) {
-        String[][] tmpsave = save;
-        tmpsave[id][0] = p.Prenom;
-        tmpsave[id][1] = "" + p.pdv;
-        tmpsave[id][2] = "" + p.lvl;
-        tmpsave[id][3] = "" + p.mapX;
-        tmpsave[id][4] = "" + p.mapY;
-        tmpsave[id][5] = "" + p.x;
-        tmpsave[id][6] = "" + p.y;
-        tmpsave[id][7] = "" + p.knight;
-        tmpsave[id][8] = "" + p.Book.Tomes[0].sommet;
-        tmpsave[id][9] = "" + p.Boss[0];
-        tmpsave[id][10] = "" + p.Boss[1];
-        tmpsave[id][11] = "" + p.Boss[2];
-        for (int pa = 0; pa < 25; pa++) {
-            if (pa < p.Book.Tomes[0].sommet) {
-                tmpsave[id][12 + pa] = "" + p.Book.Tomes[0].Pages[pa].idx;
-            } else {
-                tmpsave[id][12 + pa] = "null";
-            }
-        }
-        saveCSV(tmpsave, "Save.csv");
-        Save = loadCSV("Save.csv");
-    }
-
-    void supprSave(String filename, int save) {
-        String[][] tmpsave = CSVToString(loadCSV(filename));
-        for (int x = 0; x < length(tmpsave, 2); x++) {
-            tmpsave[save + 1][x] = "null";
-        }
-        saveCSV(tmpsave, filename);
-        Save = loadCSV(filename);
-    }
-
     Player CSVToPlayer(int id) {
         Player p = newPlayer(getCell(Save, id + 1, 0), // prenom
                 stringToInt(getCell(Save, id + 1, 1)), // point de vie
@@ -576,43 +654,7 @@ class LivreTest extends Program {
         return p;
 
     }
-
-    void testSave() {
-        // test cree perso
-        String tPrenom = "Paul";
-        int tlvl = 0;
-        int tsave = 0;
-        int tx = 10;
-        int ty = 20;
-        int tmapX = 1;
-        int tmapY = 2;
-        int tpdv = 3;
-        boolean[] tBoss = { false, false, false };
-
-        Player p = newPlayer(tPrenom, tpdv, tlvl, tsave, tx, ty, tmapX, tmapY, 1, tBoss);
-        assertEquals(tPrenom, p.Prenom);
-        assertEquals(tlvl, p.lvl);
-        assertEquals(tsave, p.save);
-        assertEquals(tx, p.x);
-        assertEquals(ty, p.y);
-        assertEquals(tmapX, p.mapX);
-        assertEquals(tmapY, p.mapY);
-        // test addto save
-        addToSave(1, CSVToString(Save), p);
-
-        String[][] tmpSave = CSVToString(Save);
-
-        assertEquals(tmpSave[1][0], p.Prenom);
-        assertEquals(tmpSave[1][2], "" + p.lvl);
-        assertEquals(tmpSave[1][5], "" + p.x);
-        assertEquals(tmpSave[1][6], "" + p.y);
-        assertEquals(tmpSave[1][3], "" + p.mapX);
-        assertEquals(tmpSave[1][4], "" + p.mapY);
-
-        // test suppr save
-
-    }
-
+    /////////////////////////////////////////////////ENEMIE FUNCTION////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     Player NewEnemie(matiere mat, int x, int y, int pdv, boolean Boss, String Nom ,int pages , int shield) {
         Player e = new Player();
@@ -705,9 +747,66 @@ class LivreTest extends Program {
             coliCombat(p, es[e]);
         }
     }
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////Market function//////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    market NewMarket(){
+        market m = new market();
+        for(int p = 0; p < length(m.place) ; p ++){
+            m.place[p] = getPage((int)(random()*rowCount(PageCSV)-1)+1);
+        }
+        return m;
+    }
+    void print(market m){
+        clearScreen();
+        cursor(30,90);
+        print("MARCHÉ");
+        for(int p = 0; p < length(m.place) ; p ++){
+            drawbox(8+ 30 * p, 9, 25, 20, ANSI_WHITE_BG+ANSI_YELLOW);
+            cursor(10, 10 + 30 * p);
+            print(p+".\t"+m.place[p].Titre);
+            print(ANSI_WHITE_BG);
+            cursor(13, 10 + 30 * p);
+            println(ANSI_GREEN + "VIE : " + m.place[p].bonus[0]);
+            cursor(15, 10 + 30 * p);
+            println(ANSI_RED + "DEGAT : " + m.place[p].bonus[1]);
+            cursor(17, 10 + 30 * p);
+            println(ANSI_BLUE + "BOUCLIER : " + m.place[p].bonus[2]); 
+            cursor(19, 10 + 30 * p);
+            println(ANSI_YELLOW + "PRIX : " + m.place[p].prix);
+            reset();
+        }
 
+    }
+    void choixMarket(market m){
+        int tmpsaisie;
+        do{
+            print(m);
+            cursor(30,90);
+            print("quelle page?\t>");
+            tmpsaisie = readInt();
+            clearScreen();
+            if(tmpsaisie <= 5 && tmpsaisie >= 0 ){
+                cursor(0, 0);
+                print(m.place[tmpsaisie]);
+                print("Acheter ?1/0\t>");
+                if(readInt() == 1){
+                    if(joueur.gold >= m.place[tmpsaisie].prix){
+                        addToLivre(joueur.Book, m.place[tmpsaisie]);
+                        joueur.gold -= m.place[tmpsaisie].prix;
+                        print("page ajouter !!!!");
+                    }else{
+                        print("\nPAS ASSEZ D'ARGENTS");
+                    }
+                    readString();
+                }
+            }         
+        }while(tmpsaisie <= 5 && tmpsaisie >= 0 );
+    }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // COMBAT FUNCTION
+    //////////////////////////////////////////////////////////////COMBAT FUNCTION///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     void combat(Player p, Player e) {
         do {
             printCombatField(p, e);
@@ -825,39 +924,30 @@ class LivreTest extends Program {
         }
         reset();
     }
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // /!\ DEBUT JEU
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    void jeu() {
-        clearScreen();
+    ///////////////////////////////////////////////////////////////////////game function/////////////////////////////////////////////////////////////////////
+    void testCheckFin(){
+        joueur = newPlayer("Hugo", 3, 1, 0, 10, 10, 0, 0, 0, new boolean[]{false,false,false});
         play = true;
-        enemieWave();
-        printMap(GameMap, 7, 138);
-        while (play) {
-            print(GameMap.tiles[joueur.mapY][joueur.mapX], mapanchor[0], mapanchor[1]);
-            printPlayer();
-            print(enemies);
-            drawRect(mapanchor[1] + 64, mapanchor[0], 20, 32, ANSI_BG_DEFAULT_COLOR);
-            input();
-            coliSCombat(joueur, enemies);
-            moves(enemies);
-            checkFin();
-        }
+        checkFin();
+        assertTrue(play);
+        joueur = newPlayer("Hugo", 3, 1, 0, 10, 10, 0, 0, 0, new boolean[]{true,false,false});
+        play = true;
+        checkFin();
+        assertTrue(play);
+        joueur = newPlayer("Hugo", 3, 1, 0, 10, 10, 0, 0, 0, new boolean[]{true,true,true});
+        play = true;
+        checkFin();
+        assertFalse(play);
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     void checkFin(){
             play =  !joueur.Boss[0] || !joueur.Boss[1] || !joueur.Boss[2];
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////Controll function//////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     void input() {
         enableKeyTypedInConsole(true);
         cursor(0, 0);
@@ -921,33 +1011,11 @@ class LivreTest extends Program {
         rightInput = true;
         enableKeyTypedInConsole(false);
     }
-    void choixMarket(market m){
-        int tmpsaisie;
-        do{
-            print(m);
-            cursor(30,90);
-            print("quelle page?\t>");
-            tmpsaisie = readInt();
-            clearScreen();
-            if(tmpsaisie <= 5 && tmpsaisie >= 0 ){
-                cursor(0, 0);
-                print(m.place[tmpsaisie]);
-                print("Acheter ?1/0\t>");
-                if(readInt() == 1){
-                    if(joueur.gold >= m.place[tmpsaisie].prix){
-                        addToLivre(joueur.Book, m.place[tmpsaisie]);
-                        joueur.gold -= m.place[tmpsaisie].prix;
-                        print("page ajouter !!!!");
-                    }else{
-                        print("\nPAS ASSEZ D'ARGENTS");
-                    }
-                    readString();
-                }
-            }         
-        }while(tmpsaisie <= 5 && tmpsaisie >= 0 );
-    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // collision detetection
+    ////////////////////////////////////////////////////////////////collision detetection///////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     int colliUP(tile til) {
         for (int dy = 0; dy < joueur.vy; dy++) {
             if (joueur.y - dy < 0
@@ -999,25 +1067,7 @@ class LivreTest extends Program {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    boolean rightInput, play;
-    final map GameMap = CSVtoMap();
-    final int[] mapanchor = { 7, 50 };
-    final CSVFile caracter = loadCSV("caracter.csv");
-    final CSVFile enemieCSV  = loadCSV("enemie.csv");
-    final CSVFile bossCSV = loadCSV("boss.csv");
-    final matiere[] mat = { NewMatiere(MATIERE.MATHEMATIQUES, ANSI_BLUE), NewMatiere(MATIERE.FRANCAIS, ANSI_GREEN),
-        NewMatiere(MATIERE.HISTOIRE, ANSI_RED) };
-    Player[] enemies;
-    Player[] Boss = {
-        NewEnemie(mat[1], 16, 16, 3, true, "Conjugomax", 10, 6),
-        NewEnemie(mat[0], 16, 16, 3, true, "Calculomax", 10, 9),
-        NewEnemie(mat[2], 16, 16, 3, true, "Historio", 15, 12)
-    };
-    final texture[] textures = { NewTexture("Ground", (char) 9617, ANSI_GREEN, ANSI_YELLOW_BG),
-            NewTexture("Caracter", (char) 492, ANSI_PURPLE, ANSI_YELLOW_BG),
-            NewTexture("Enemie", (char) 26, ANSI_RED, ""),
-            NewTexture("Tree", (char) 9035, ANSI_BOLD + ANSI_GREEN, ANSI_GREEN_BG),
-            NewTexture("Water", ' ', ANSI_BLUE, ANSI_BLUE_BG) };
+    
     
 
     void printpos(Player p) {
@@ -1033,6 +1083,22 @@ class LivreTest extends Program {
         cursor(0, 0);
     }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////Other initialisation function////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    void testNewTexture(){
+        String tnom = "sol";
+        char tskin = 'v';
+        String tforground = ANSI_BLUE;
+        String tbackground = ANSI_GREEN_BG;
+
+        texture tt = NewTexture(tnom, tskin, tforground, tbackground);
+        
+        assertEquals(tnom, tt.nom);
+        assertEquals(tskin,tt.skin);
+    }
+
     texture NewTexture(String name, char skin, String forground, String background) {
         texture t = new texture();
         t.nom = name;
@@ -1043,6 +1109,15 @@ class LivreTest extends Program {
         return t;
     }
 
+
+    void testNewMatiere(){
+        MATIERE tm = MATIERE.MATHEMATIQUES;
+        String tcolor = ANSI_RED;
+
+        matiere tmat = NewMatiere(tm, tcolor);
+
+        assertEquals(tm, tmat.mat);
+    }
     matiere NewMatiere(MATIERE mat, String color) {
         matiere m = new matiere();
         m.mat = mat;
@@ -1051,6 +1126,14 @@ class LivreTest extends Program {
         return m;
     }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////Map Function////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+///////////////////////////////////////////////::: subtile function ::::::::::::////////////////////////////////////////////////////////////////////////////////
     void testCSVToSubtile() {
         subtile s = CSVToSubtile(0);
         assertEquals(0, s.cell[0][7]);
@@ -1068,38 +1151,26 @@ class LivreTest extends Program {
 
         return s;
     }
+    void print(subtile s, int row, int col) {
+        // subtile dimension
+        texture tmpt;
+        for (int y1 = 0; y1 < length(s.cell, 1); y1++) {
+            cursor(row + y1, col);
+            for (int x1 = 0; x1 < length(s.cell, 2); x1++) {
+                // cell dimension
+                tmpt = textures[s.cell[y1][x1]];
+                print(tmpt.forground + tmpt.background + tmpt.skin + " ");
+                reset();
+            }
+        }
+        cursor(0, 0);
+    }
 
+
+///////////////////////////////////////////////::: tile function ::::::::::::////////////////////////////////////////////////////////////////////////////////
     void testCSVToTile() {
         tile t = CSVToTile(1);
         assertEquals("point", t.name);
-    }
-    market NewMarket(){
-        market m = new market();
-        for(int p = 0; p < length(m.place) ; p ++){
-            m.place[p] = getPage((int)(random()*rowCount(PageCSV)-1)+1);
-        }
-        return m;
-    }
-    void print(market m){
-        clearScreen();
-        cursor(30,90);
-        print("MARCHÉ");
-        for(int p = 0; p < length(m.place) ; p ++){
-            drawbox(8+ 30 * p, 9, 25, 20, ANSI_WHITE_BG+ANSI_YELLOW);
-            cursor(10, 10 + 30 * p);
-            print(p+".\t"+m.place[p].Titre);
-            print(ANSI_WHITE_BG);
-            cursor(13, 10 + 30 * p);
-            println(ANSI_GREEN + "VIE : " + m.place[p].bonus[0]);
-            cursor(15, 10 + 30 * p);
-            println(ANSI_RED + "DEGAT : " + m.place[p].bonus[1]);
-            cursor(17, 10 + 30 * p);
-            println(ANSI_BLUE + "BOUCLIER : " + m.place[p].bonus[2]); 
-            cursor(19, 10 + 30 * p);
-            println(ANSI_YELLOW + "PRIX : " + m.place[p].prix);
-            reset();
-        }
-
     }
     tile CSVToTile(int idx) {
         tile t = new tile();
@@ -1114,9 +1185,21 @@ class LivreTest extends Program {
         return t;
     }
 
+    void print(tile t, int row, int col) {
+        // tile dimension
+        for (int y2 = 0; y2 < length(t.subtiles, 1); y2++) {
+            cursor(row + 8 * y2, col);
+            for (int x2 = 0; x2 < length(t.subtiles, 2); x2++) {
+                print(t.subtiles[y2][x2], row + 8 * y2, col + 16 * x2);
+            }
+        }
+        cursor(0, 0);
+    }
+    ///////////////////////////////////////////////:::map function ::::::::::::////////////////////////////////////////////////////////////////////////////////
+
     void testCSVToMap() {
         map m = CSVtoMap();
-        assertEquals(m.tiles[20][0].subtiles[0][1].cell[0][0], 0);
+        assertEquals(m.tiles[0][5].subtiles[0][0].cell[0][0], 0);
     }
 
     map CSVtoMap() {
@@ -1144,35 +1227,5 @@ class LivreTest extends Program {
         cursor(row+joueur.mapY,col+1+3*joueur.mapX);
         print(ANSI_RED+ANSI_GREEN_BG+"■");
         reset();
-    }
-
-    void testPrintTile() {
-        print(CSVToTile(0), 7, 50);
-    }
-
-    void print(tile t, int row, int col) {
-        // tile dimension
-        for (int y2 = 0; y2 < length(t.subtiles, 1); y2++) {
-            cursor(row + 8 * y2, col);
-            for (int x2 = 0; x2 < length(t.subtiles, 2); x2++) {
-                print(t.subtiles[y2][x2], row + 8 * y2, col + 16 * x2);
-            }
-        }
-        cursor(0, 0);
-    }
-
-    void print(subtile s, int row, int col) {
-        // subtile dimension
-        texture tmpt;
-        for (int y1 = 0; y1 < length(s.cell, 1); y1++) {
-            cursor(row + y1, col);
-            for (int x1 = 0; x1 < length(s.cell, 2); x1++) {
-                // cell dimension
-                tmpt = textures[s.cell[y1][x1]];
-                print(tmpt.forground + tmpt.background + tmpt.skin + " ");
-                reset();
-            }
-        }
-        cursor(0, 0);
     }
 }
