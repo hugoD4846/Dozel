@@ -13,9 +13,9 @@ class Dozel extends Program {
     final CSVFile caracter = loadCSV("caracter.csv");
     final CSVFile enemieCSV  = loadCSV("enemie.csv");
     final CSVFile bossCSV = loadCSV("boss.csv");
-    final CSVFile MapCSV = loadCSV("Map.csv");
-    final CSVFile TilesCSV = loadCSV("Tile.csv");
-    final CSVFile SubTilesCSV = loadCSV("SubTile.csv");
+    final CSVFile MapCSV = loadCSV("map.csv");
+    final CSVFile TilesCSV = loadCSV("tile.csv");
+    final CSVFile SubTilesCSV = loadCSV("subtile.csv");
     CSVFile Save = loadCSV("Save.csv");
     final Map GameMap = CSVtoMap();
     final int[] Mapanchor = { 7, 50 };
