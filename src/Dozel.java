@@ -969,7 +969,7 @@ class Dozel extends Program {
                 enemieWave();
                 printMap(GameMap, 7, 138);
             }
-            break;
+        break;
         case ANSI_DOWN:
             joueur.y += colliDOWN(currentTile);
             if (joueur.y + 2 >= 31) {
@@ -978,7 +978,7 @@ class Dozel extends Program {
                 enemieWave();
                 printMap(GameMap, 7, 138);
             }
-            break;
+        break;
         case ANSI_LEFT:
             joueur.x -= colliLEFT(currentTile);
             if (joueur.x <= 0) {
@@ -987,7 +987,7 @@ class Dozel extends Program {
                 enemieWave();
                 printMap(GameMap, 7, 138);
             }
-            break;
+        break;
         case ANSI_RIGHT:
             joueur.x += colliRIGHT(currentTile);
             if (joueur.x >= 31) {
@@ -996,10 +996,10 @@ class Dozel extends Program {
                 enemieWave();
                 printMap(GameMap, 7, 138);
             }
-            break;
+        break;
         case 'q':
             play = false;
-            break;
+        break;
         case 'm':
             Market m = NewMarket();
             
