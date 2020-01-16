@@ -1,4 +1,4 @@
-class matiere{
+class Matiere{
     MATIERE mat;
     String color;
 }

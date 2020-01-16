@@ -13,13 +13,13 @@ class Dozel extends Program {
     final CSVFile caracter = loadCSV("caracter.csv");
     final CSVFile enemieCSV  = loadCSV("enemie.csv");
     final CSVFile bossCSV = loadCSV("boss.csv");
-    final CSVFile mapCSV = loadCSV("map.csv");
-    final CSVFile tilesCSV = loadCSV("tile.csv");
-    final CSVFile subtilesCSV = loadCSV("subtile.csv");
+    final CSVFile MapCSV = loadCSV("Map.csv");
+    final CSVFile TilesCSV = loadCSV("Tile.csv");
+    final CSVFile SubTilesCSV = loadCSV("SubTile.csv");
     CSVFile Save = loadCSV("Save.csv");
-    final map GameMap = CSVtoMap();
-    final int[] mapanchor = { 7, 50 };
-    final matiere[] mat = { NewMatiere(MATIERE.MATHEMATIQUES, ANSI_BLUE), NewMatiere(MATIERE.FRANCAIS, ANSI_GREEN),
+    final Map GameMap = CSVtoMap();
+    final int[] Mapanchor = { 7, 50 };
+    final Matiere[] mat = { NewMatiere(MATIERE.MATHEMATIQUES, ANSI_BLUE), NewMatiere(MATIERE.FRANCAIS, ANSI_GREEN),
         NewMatiere(MATIERE.HISTOIRE, ANSI_RED) };
     Player[] enemies;
     Player[] Boss = {
@@ -27,7 +27,7 @@ class Dozel extends Program {
         NewEnemie(mat[0], 16, 16, 3, true, "Calculomax", 10, 9),
         NewEnemie(mat[2], 16, 16, 3, true, "Historio", 15, 12)
     };
-    final texture[] textures = { NewTexture("Ground", (char) 9617, ANSI_GREEN, ANSI_YELLOW_BG),
+    final Texture[] Textures = { NewTexture("Ground", (char) 9617, ANSI_GREEN, ANSI_YELLOW_BG),
     NewTexture("Caracter", (char) 492, ANSI_PURPLE, ANSI_YELLOW_BG),
     NewTexture("Enemie", (char) 26, ANSI_RED, ""),
     NewTexture("Tree", (char) 9035, ANSI_BOLD + ANSI_GREEN, ANSI_GREEN_BG),
@@ -52,10 +52,10 @@ class Dozel extends Program {
         enemieWave();
         printMap(GameMap, 7, 138);
         while (play) {
-            print(GameMap.tiles[joueur.mapY][joueur.mapX], mapanchor[0], mapanchor[1]);
+            print(GameMap.Tiles[joueur.MapY][joueur.MapX], Mapanchor[0], Mapanchor[1]);
             printPlayer();
             print(enemies);
-            drawRect(mapanchor[1] + 64, mapanchor[0], 20, 32, ANSI_BG_DEFAULT_COLOR);
+            drawRect(Mapanchor[1] + 64, Mapanchor[0], 20, 32, ANSI_BG_DEFAULT_COLOR);
             input();
             coliSCombat(joueur, enemies);
             moves(enemies);
@@ -140,8 +140,8 @@ class Dozel extends Program {
         tmpsave[id][0] = p.Prenom;
         tmpsave[id][1] = "" + p.pdv;
         tmpsave[id][2] = "" + p.lvl;
-        tmpsave[id][3] = "" + p.mapX;
-        tmpsave[id][4] = "" + p.mapY;
+        tmpsave[id][3] = "" + p.MapX;
+        tmpsave[id][4] = "" + p.MapY;
         tmpsave[id][5] = "" + p.x;
         tmpsave[id][6] = "" + p.y;
         tmpsave[id][7] = "" + p.knight;
@@ -175,19 +175,19 @@ class Dozel extends Program {
         int tsave = 0;
         int tx = 10;
         int ty = 20;
-        int tmapX = 1;
-        int tmapY = 2;
+        int tMapX = 1;
+        int tMapY = 2;
         int tpdv = 3;
         boolean[] tBoss = { false, false, false };
 
-        Player p = newPlayer(tPrenom, tpdv, tlvl, tsave, tx, ty, tmapX, tmapY, 1, tBoss);
+        Player p = newPlayer(tPrenom, tpdv, tlvl, tsave, tx, ty, tMapX, tMapY, 1, tBoss);
         assertEquals(tPrenom, p.Prenom);
         assertEquals(tlvl, p.lvl);
         assertEquals(tsave, p.save);
         assertEquals(tx, p.x);
         assertEquals(ty, p.y);
-        assertEquals(tmapX, p.mapX);
-        assertEquals(tmapY, p.mapY);
+        assertEquals(tMapX, p.MapX);
+        assertEquals(tMapY, p.MapY);
         // test addto save
         addToSave(1, CSVToString(Save), p);
 
@@ -197,8 +197,8 @@ class Dozel extends Program {
         assertEquals(tmpSave[1][2], "" + p.lvl);
         assertEquals(tmpSave[1][5], "" + p.x);
         assertEquals(tmpSave[1][6], "" + p.y);
-        assertEquals(tmpSave[1][3], "" + p.mapX);
-        assertEquals(tmpSave[1][4], "" + p.mapY);
+        assertEquals(tmpSave[1][3], "" + p.MapX);
+        assertEquals(tmpSave[1][4], "" + p.MapY);
     }
 
 
@@ -292,9 +292,9 @@ class Dozel extends Program {
         }
         println();
     }
-    Question getQuestion(CSVFile matiere, int row) {
-        return NewQuestion(getCell(matiere, row, 0),
-                new String[] { getCell(matiere, row, 1), getCell(matiere, row, 2), getCell(matiere, row, 3) });
+    Question getQuestion(CSVFile Matiere, int row) {
+        return NewQuestion(getCell(Matiere, row, 0),
+                new String[] { getCell(Matiere, row, 1), getCell(Matiere, row, 2), getCell(Matiere, row, 3) });
     }
     Question NewQuestion(String qu, String[] proposition) {
         Question q = new Question();
@@ -591,7 +591,7 @@ class Dozel extends Program {
     ////////////////////////////////////////Player function //////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    Player newPlayer(String prenom, int pdv, int lvl, int save, int x, int y, int mapX, int mapY, int knight,
+    Player newPlayer(String prenom, int pdv, int lvl, int save, int x, int y, int MapX, int MapY, int knight,
             boolean[] Boss) {
         Player p = new Player();
         p.Prenom = prenom;
@@ -601,8 +601,8 @@ class Dozel extends Program {
         p.save = save;
         p.x = x;
         p.y = y;
-        p.mapX = mapX;
-        p.mapY = mapY;
+        p.MapX = MapX;
+        p.MapY = MapY;
         p.knight = knight;
         p.Boss[0] = Boss[0];
         p.Boss[1] = Boss[1];
@@ -656,7 +656,7 @@ class Dozel extends Program {
     }
     /////////////////////////////////////////////////ENEMIE FUNCTION////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    Player NewEnemie(matiere mat, int x, int y, int pdv, boolean Boss, String Nom ,int pages , int shield) {
+    Player NewEnemie(Matiere mat, int x, int y, int pdv, boolean Boss, String Nom ,int pages , int shield) {
         Player e = new Player();
         e.Prenom = Nom;
         e.mat = mat;
@@ -682,7 +682,7 @@ class Dozel extends Program {
                 dx = (int) pow(-1, (int) (random() * 3));
                 dy = (int) pow(-1, (int) (random() * 3));
             } while (e.y + dy < 3 || e.y + dy > 29 || e.x + dx < 3 || e.x + dx > 29
-                    || GameMap.tiles[joueur.mapY][joueur.mapX].subtiles[(e.y + dy) / 8][(e.x + dx) / 8].cell[e.y + dy
+                    || GameMap.Tiles[joueur.MapY][joueur.MapX].SubTiles[(e.y + dy) / 8][(e.x + dx) / 8].cell[e.y + dy
                             - (8 * ((e.y + dy) / 8))][e.x + dx - (8 * ((e.x + dx) / 8))] != 0);
             e.x += dx;
         e.y += dy;
@@ -703,15 +703,15 @@ class Dozel extends Program {
                 ex = (int) (random() * 26) + 3;
                 ey = (int) (random() * 26) + 3;
 
-            } while (GameMap.tiles[joueur.mapY][joueur.mapX].subtiles[(ey) / 8][(ey) / 8].cell[ey - (8 * ((ey) / 8))][ex
+            } while (GameMap.Tiles[joueur.MapY][joueur.MapX].SubTiles[(ey) / 8][(ey) / 8].cell[ey - (8 * ((ey) / 8))][ex
                     - (8 * ((ex) / 8))] != 0);
             enemies[es] = NewEnemie(mat[(int) (random() * length(mat))], ex, ey, 3 + (int) (random() * 2), false,"Enemie\t" + es,3,10);
         }
-        if(joueur.mapX == 3 && joueur.mapY == 3  && !joueur.Boss[0]){
+        if(joueur.MapX == 3 && joueur.MapY == 3  && !joueur.Boss[0]){
             enemies[length(enemies)-1] = Boss[0];
-        }else if(joueur.mapX == 1 && joueur.mapY == 6  && !joueur.Boss[1]){
+        }else if(joueur.MapX == 1 && joueur.MapY == 6  && !joueur.Boss[1]){
             enemies[length(enemies)-1] = Boss[1];
-        }else if(joueur.mapX == 3 && joueur.mapY == 12 && !joueur.Boss[2]){
+        }else if(joueur.MapX == 3 && joueur.MapY == 12 && !joueur.Boss[2]){
             enemies[length(enemies)-1] = Boss[2];
         }
         
@@ -721,9 +721,9 @@ class Dozel extends Program {
         if(!e.dead){
             print(e.mat.color + ANSI_YELLOW_BG);
             if(e.BOSS){
-                printLogo(bossCSV, mapanchor[0] + e.y, mapanchor[1] + (e.x * 2), 0);
+                printLogo(bossCSV, Mapanchor[0] + e.y, Mapanchor[1] + (e.x * 2), 0);
             }else{
-                printLogo(enemieCSV, mapanchor[0] + e.y, mapanchor[1] + (e.x * 2), 0);
+                printLogo(enemieCSV, Mapanchor[0] + e.y, Mapanchor[1] + (e.x * 2), 0);
             }
             reset();
             cursor(0, 0);
@@ -751,14 +751,14 @@ class Dozel extends Program {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////Market function//////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    market NewMarket(){
-        market m = new market();
+    Market NewMarket(){
+        Market m = new Market();
         for(int p = 0; p < length(m.place) ; p ++){
             m.place[p] = getPage((int)(random()*rowCount(PageCSV)-1)+1);
         }
         return m;
     }
-    void print(market m){
+    void print(Market m){
         clearScreen();
         cursor(30,90);
         print("MARCHÉ");
@@ -779,7 +779,7 @@ class Dozel extends Program {
         }
 
     }
-    void choixMarket(market m){
+    void choixMarket(Market m){
         int tmpsaisie;
         do{
             print(m);
@@ -827,7 +827,7 @@ class Dozel extends Program {
         }else{
             joueur.gold += (int)(random()*3)+1;
             if(e.BOSS){
-                switch(joueur.mapY){
+                switch(joueur.MapY){
                     case 3:
                         joueur.Boss[0] = true;
                     break;
@@ -959,39 +959,39 @@ class Dozel extends Program {
 
     void keyTypedInConsole(char c) {
         cursor(0, 0);
-        tile currenttile = GameMap.tiles[joueur.mapY][joueur.mapX];
+        Tile currentTile = GameMap.Tiles[joueur.MapY][joueur.MapX];
         switch (c) {
         case ANSI_UP:
-            joueur.y -= colliUP(currenttile);
-            if (joueur.y <= 0 && joueur.mapY > 0) {
-                joueur.mapY--;
+            joueur.y -= colliUP(currentTile);
+            if (joueur.y <= 0 && joueur.MapY > 0) {
+                joueur.MapY--;
                 joueur.y = 31 - 2;
                 enemieWave();
                 printMap(GameMap, 7, 138);
             }
             break;
         case ANSI_DOWN:
-            joueur.y += colliDOWN(currenttile);
+            joueur.y += colliDOWN(currentTile);
             if (joueur.y + 2 >= 31) {
-                joueur.mapY++;
+                joueur.MapY++;
                 joueur.y = 0;
                 enemieWave();
                 printMap(GameMap, 7, 138);
             }
             break;
         case ANSI_LEFT:
-            joueur.x -= colliLEFT(currenttile);
+            joueur.x -= colliLEFT(currentTile);
             if (joueur.x <= 0) {
-                joueur.mapX--;
+                joueur.MapX--;
                 joueur.x = 31;
                 enemieWave();
                 printMap(GameMap, 7, 138);
             }
             break;
         case ANSI_RIGHT:
-            joueur.x += colliRIGHT(currenttile);
+            joueur.x += colliRIGHT(currentTile);
             if (joueur.x >= 31) {
-                joueur.mapX++;
+                joueur.MapX++;
                 joueur.x = 0;
                 enemieWave();
                 printMap(GameMap, 7, 138);
@@ -1001,7 +1001,7 @@ class Dozel extends Program {
             play = false;
             break;
         case 'm':
-            market m = NewMarket();
+            Market m = NewMarket();
             
             choixMarket(m);
         break;
@@ -1016,10 +1016,10 @@ class Dozel extends Program {
     ////////////////////////////////////////////////////////////////collision detetection///////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    int colliUP(tile til) {
+    int colliUP(Tile til) {
         for (int dy = 0; dy < joueur.vy; dy++) {
             if (joueur.y - dy < 0
-                    || til.subtiles[(joueur.y - dy) / 8][joueur.x / 8].cell[(joueur.y - (8 * ((joueur.y - dy) / 8)))
+                    || til.SubTiles[(joueur.y - dy) / 8][joueur.x / 8].cell[(joueur.y - (8 * ((joueur.y - dy) / 8)))
                             - dy][joueur.x - (8 * (joueur.x / 8))] != 0) {
                 return dy - 1;
             }
@@ -1027,9 +1027,9 @@ class Dozel extends Program {
         return joueur.vy;
     }
 
-    int colliDOWN(tile til) {
+    int colliDOWN(Tile til) {
         for (int dy = 0; dy < joueur.vy; dy++) {
-            if (joueur.y + dy + 2 > 32 || til.subtiles[(joueur.y + dy + 2) / 8][joueur.x / 8].cell[(joueur.y
+            if (joueur.y + dy + 2 > 32 || til.SubTiles[(joueur.y + dy + 2) / 8][joueur.x / 8].cell[(joueur.y
                     - (8 * ((joueur.y + dy + 2) / 8))) + dy + 2][joueur.x - (8 * (joueur.x / 8))] != 0) {
                 return dy - 1;
             }
@@ -1037,10 +1037,10 @@ class Dozel extends Program {
         return joueur.vy;
     }
 
-    int colliLEFT(tile til) {
+    int colliLEFT(Tile til) {
         for (int height = 0; height < 3; height++) {
             for (int dx = 0; dx < joueur.vx; dx++) {
-                if (joueur.x - dx < 0 || til.subtiles[(joueur.y + height) / 8][(joueur.x - dx) / 8].cell[(joueur.y
+                if (joueur.x - dx < 0 || til.SubTiles[(joueur.y + height) / 8][(joueur.x - dx) / 8].cell[(joueur.y
                         - (8 * ((joueur.y + height) / 8)) + height)][(joueur.x - (8 * ((joueur.x - dx) / 8)))
                                 - dx] != 0) {
                     return dx - 1;
@@ -1050,13 +1050,13 @@ class Dozel extends Program {
         return joueur.vy;
     }
 
-    int colliRIGHT(tile til) {
+    int colliRIGHT(Tile til) {
         for (int height = 0; height < 3; height++) {
             for (int dx = 0; dx < joueur.vx; dx++) {
                 cursor(1, 0);
                 print(dx);
                 print(joueur.x);
-                if (joueur.x + dx > 31 || til.subtiles[(joueur.y + height) / 8][(joueur.x + dx) / 8].cell[(joueur.y
+                if (joueur.x + dx > 31 || til.SubTiles[(joueur.y + height) / 8][(joueur.x + dx) / 8].cell[(joueur.y
                         - (8 * ((joueur.y + height) / 8)) + height)][(joueur.x - (8 * ((joueur.x + dx) / 8)))
                                 + dx] != 0) {
                     return dx - 1;
@@ -1073,12 +1073,12 @@ class Dozel extends Program {
     void printpos(Player p) {
         cursor(0, 0);
         println("[" + p.x + ";" + p.y + "]");
-        println("[" + p.mapX + ";" + p.mapY + "]");
+        println("[" + p.MapX + ";" + p.MapY + "]");
     }
 
     void printPlayer() {
-        print(textures[1].forground + textures[1].background);
-        printLogo(caracter, mapanchor[0] + joueur.y, mapanchor[1] + (joueur.x * 2), 0);
+        print(Textures[1].forground + Textures[1].background);
+        printLogo(caracter, Mapanchor[0] + joueur.y, Mapanchor[1] + (joueur.x * 2), 0);
         reset();
         cursor(0, 0);
     }
@@ -1093,14 +1093,14 @@ class Dozel extends Program {
         String tforground = ANSI_BLUE;
         String tbackground = ANSI_GREEN_BG;
 
-        texture tt = NewTexture(tnom, tskin, tforground, tbackground);
+        Texture tt = NewTexture(tnom, tskin, tforground, tbackground);
         
         assertEquals(tnom, tt.nom);
         assertEquals(tskin,tt.skin);
     }
 
-    texture NewTexture(String name, char skin, String forground, String background) {
-        texture t = new texture();
+    Texture NewTexture(String name, char skin, String forground, String background) {
+        Texture t = new Texture();
         t.nom = name;
         t.skin = skin;
         t.forground = forground;
@@ -1114,12 +1114,12 @@ class Dozel extends Program {
         MATIERE tm = MATIERE.MATHEMATIQUES;
         String tcolor = ANSI_RED;
 
-        matiere tmat = NewMatiere(tm, tcolor);
+        Matiere tmat = NewMatiere(tm, tcolor);
 
         assertEquals(tm, tmat.mat);
     }
-    matiere NewMatiere(MATIERE mat, String color) {
-        matiere m = new matiere();
+    Matiere NewMatiere(MATIERE mat, String color) {
+        Matiere m = new Matiere();
         m.mat = mat;
         m.color = color;
 
@@ -1133,32 +1133,32 @@ class Dozel extends Program {
 
 
 
-///////////////////////////////////////////////::: subtile function ::::::::::::////////////////////////////////////////////////////////////////////////////////
-    void testCSVToSubtile() {
-        subtile s = CSVToSubtile(0);
+///////////////////////////////////////////////::: SubTile function ::::::::::::////////////////////////////////////////////////////////////////////////////////
+    void testCSVToSubTile() {
+        SubTile s = CSVToSubTile(0);
         assertEquals(0, s.cell[0][7]);
     }
 
-    subtile CSVToSubtile(int idx) {
-        subtile s = new subtile();
+    SubTile CSVToSubTile(int idx) {
+        SubTile s = new SubTile();
 
-        s.name = getCell(subtilesCSV, 8 * idx, 8);
+        s.name = getCell(SubTilesCSV, 8 * idx, 8);
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 8; x++) {
-                s.cell[y][x] = stringToInt(getCell(subtilesCSV, y + 8 * idx, x));
+                s.cell[y][x] = stringToInt(getCell(SubTilesCSV, y + 8 * idx, x));
             }
         }
 
         return s;
     }
-    void print(subtile s, int row, int col) {
-        // subtile dimension
-        texture tmpt;
+    void print(SubTile s, int row, int col) {
+        // SubTile dimension
+        Texture tmpt;
         for (int y1 = 0; y1 < length(s.cell, 1); y1++) {
             cursor(row + y1, col);
             for (int x1 = 0; x1 < length(s.cell, 2); x1++) {
                 // cell dimension
-                tmpt = textures[s.cell[y1][x1]];
+                tmpt = Textures[s.cell[y1][x1]];
                 print(tmpt.forground + tmpt.background + tmpt.skin + " ");
                 reset();
             }
@@ -1167,64 +1167,64 @@ class Dozel extends Program {
     }
 
 
-///////////////////////////////////////////////::: tile function ::::::::::::////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////::: Tile function ::::::::::::////////////////////////////////////////////////////////////////////////////////
     void testCSVToTile() {
-        tile t = CSVToTile(1);
+        Tile t = CSVToTile(1);
         assertEquals("point", t.name);
     }
-    tile CSVToTile(int idx) {
-        tile t = new tile();
-        t.name = getCell(tilesCSV, 4 * idx, 4);
-        t.mapchar = getCell(tilesCSV, 4 * idx, 5);
+    Tile CSVToTile(int idx) {
+        Tile t = new Tile();
+        t.name = getCell(TilesCSV, 4 * idx, 4);
+        t.MapChar = getCell(TilesCSV, 4 * idx, 5);
         for (int y = 0; y < 4; y++) {
             for (int x = 0; x < 4; x++) {
-                t.subtiles[y][x] = CSVToSubtile(stringToInt(getCell(tilesCSV, y + 4 * idx, x)));
+                t.SubTiles[y][x] = CSVToSubTile(stringToInt(getCell(TilesCSV, y + 4 * idx, x)));
             }
         }
 
         return t;
     }
 
-    void print(tile t, int row, int col) {
-        // tile dimension
-        for (int y2 = 0; y2 < length(t.subtiles, 1); y2++) {
+    void print(Tile t, int row, int col) {
+        // Tile dimension
+        for (int y2 = 0; y2 < length(t.SubTiles, 1); y2++) {
             cursor(row + 8 * y2, col);
-            for (int x2 = 0; x2 < length(t.subtiles, 2); x2++) {
-                print(t.subtiles[y2][x2], row + 8 * y2, col + 16 * x2);
+            for (int x2 = 0; x2 < length(t.SubTiles, 2); x2++) {
+                print(t.SubTiles[y2][x2], row + 8 * y2, col + 16 * x2);
             }
         }
         cursor(0, 0);
     }
-    ///////////////////////////////////////////////:::map function ::::::::::::////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////:::Map function ::::::::::::////////////////////////////////////////////////////////////////////////////////
 
     void testCSVToMap() {
-        map m = CSVtoMap();
-        assertEquals(m.tiles[0][5].subtiles[0][0].cell[0][0], 0);
+        Map m = CSVtoMap();
+        assertEquals(m.Tiles[0][5].SubTiles[0][0].cell[0][0], 0);
     }
 
-    map CSVtoMap() {
-        map m = new map();
-        m.tiles = new tile[rowCount(mapCSV)][columnCount(mapCSV)];
-        for (int y = 0; y < rowCount(mapCSV); y++) {
-            for (int x = 0; x < columnCount(mapCSV); x++) {
-                m.tiles[y][x] = CSVToTile(stringToInt(getCell(mapCSV, y, x)));
+    Map CSVtoMap() {
+        Map m = new Map();
+        m.Tiles = new Tile[rowCount(MapCSV)][columnCount(MapCSV)];
+        for (int y = 0; y < rowCount(MapCSV); y++) {
+            for (int x = 0; x < columnCount(MapCSV); x++) {
+                m.Tiles[y][x] = CSVToTile(stringToInt(getCell(MapCSV, y, x)));
 
             }
         }
 
         return m;
     }
-    void printMap(map m, int row, int col) {
-        // map dimension
-        for (int y3 = 0; y3 < length(m.tiles, 1); y3++) {
+    void printMap(Map m, int row, int col) {
+        // Map dimension
+        for (int y3 = 0; y3 < length(m.Tiles, 1); y3++) {
             cursor(row+y3,col);
-            for (int x3 = 0; x3 < length(m.tiles, 2); x3++) {
+            for (int x3 = 0; x3 < length(m.Tiles, 2); x3++) {
                 print(ANSI_GREEN_BG + ANSI_YELLOW);
-                print(m.tiles[y3][x3].mapchar);
+                print(m.Tiles[y3][x3].MapChar);
             }
             reset();
         }
-        cursor(row+joueur.mapY,col+1+3*joueur.mapX);
+        cursor(row+joueur.MapY,col+1+3*joueur.MapX);
         print(ANSI_RED+ANSI_GREEN_BG+"■");
         reset();
     }

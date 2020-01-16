@@ -1,3 +1,0 @@
-class map{
-    tile [][] tiles;
-}
